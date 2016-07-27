@@ -1,6 +1,6 @@
 
 # Created by https://www.gitignore.io/api/rails,ruby,node,osx,linux,windows
-
+.env
 ### Rails ###
 *.rbc
 capybara-*.html
