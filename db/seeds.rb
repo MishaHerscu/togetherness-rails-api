@@ -15,89 +15,41 @@ p 'getting seed data'
 
 eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 
-chicago_args = { app_key: ENV['EVENTFUL_KEY'],
-                 q: 'music',
-                 where: 'Chicago',
-                 # date: '2013061000-2015062000',
-                 page_size: 1,
-                 sort_order: 'popularity' }
+cities = ['Chicago', 'Boston', 'New York']
+all_events = []
 
-boston_args = { app_key: ENV['EVENTFUL_KEY'],
+cities.each do |city|
+  city_args = { app_key: ENV['EVENTFUL_KEY'],
                 q: 'music',
-                where: 'Boston',
+                where: city,
                 # date: '2013061000-2015062000',
-                page_size: 1,
+                page_size: 5,
                 sort_order: 'popularity' }
-
-newyork_args = { app_key: ENV['EVENTFUL_KEY'],
-                 q: 'music',
-                 where: 'New York',
-                 # date: '2013061000-2015062000',
-                 page_size: 1,
-                 sort_order: 'popularity' }
-
-chicago_events = eventful.call 'events/search/',
-                               chicago_args
-
-boston_events = eventful.call 'events/search/',
-                              boston_args
-
-newyork_events = eventful.call 'events/search/',
-                               newyork_args
-
-p 'chicago_events'
-p chicago_events
-
-p 'boston_events'
-p boston_events
-
-p 'newyork_events'
-p newyork_events
-
-chicago_events.each do |attraction|
-  Attraction.create!(
-    city_name: attraction.city_name,
-    country_name: attraction.country_name,
-    title: attraction.title,
-    description: attraction.description,
-    owner: attraction.owner,
-    start_time: attraction.start_time,
-    stop_time: attraction.stop_time,
-    all_day: attraction.all_day,
-    venue_name: attraction.venue_name,
-    venue_address: attraction.venue_address,
-    venue_url: attraction.venue_url
-  )
+  city_events = eventful.call 'events/search/',
+                              city_args
+  all_events << city_events
 end
 
-boston_events.each do |attraction|
-  Attraction.create!(
-    city_name: attraction.city_name,
-    country_name: attraction.country_name,
-    title: attraction.title,
-    description: attraction.description,
-    owner: attraction.owner,
-    start_time: attraction.start_time,
-    stop_time: attraction.stop_time,
-    all_day: attraction.all_day,
-    venue_name: attraction.venue_name,
-    venue_address: attraction.venue_address,
-    venue_url: attraction.venue_url
-  )
+def create_attractions(results)
+  results.values[0].values[0].each do |attraction|
+    p attraction
+    p 'XXXXXXXXX'
+    Attraction.create!(
+      city_name: attraction[:city_name],
+      country_name: attraction[:country_name],
+      title: attraction[:title],
+      description: attraction[:description],
+      owner: attraction[:owner],
+      start_time: attraction[:start_time],
+      stop_time: attraction[:stop_time],
+      all_day: attraction[:all_day],
+      venue_name: attraction[:venue_name],
+      venue_address: attraction[:venue_address],
+      venue_url: attraction[:venue_url]
+    )
+  end
 end
 
-newyork_events.each do |attraction|
-  Attraction.create!(
-    city_name: attraction.city_name,
-    country_name: attraction.country_name,
-    title: attraction.title,
-    description: attraction.description,
-    owner: attraction.owner,
-    start_time: attraction.start_time,
-    stop_time: attraction.stop_time,
-    all_day: attraction.all_day,
-    venue_name: attraction.venue_name,
-    venue_address: attraction.venue_address,
-    venue_url: attraction.venue_url
-  )
+all_events.each do |event|
+  create_attractions(event)
 end
