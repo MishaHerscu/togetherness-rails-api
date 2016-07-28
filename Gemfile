@@ -1,6 +1,9 @@
 source 'https://rubygems.org'
 ruby '2.3.0'
 
+gem 'eventfulapi'
+gem 'dotenv-rails', groups: [:development, :test]
+
 gem 'rails', '~> 4.2.6'
 gem 'rails-api'
 gem 'active_model_serializers', '= 0.10.0.rc4'
