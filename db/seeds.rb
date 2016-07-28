@@ -16,16 +16,16 @@ p 'getting seed data'
 eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 
 cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
-          'Las Vegas']
+          'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
 all_events = []
 
 cities.each do |city|
   city_args = { app_key: ENV['EVENTFUL_KEY'],
-                q: 'music',
+                # q: 'music',
                 where: city,
                 # date: '2013061000-2015062000',
-                page_size: 20,
-                sort_order: 'popularity' }
+                # sort_order: 'popularity',
+                page_size: 50 }
   city_events = eventful.call 'events/search/',
                               city_args
   all_events << city_events
