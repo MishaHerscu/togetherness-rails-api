@@ -15,7 +15,8 @@ p 'getting seed data'
 
 eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 
-cities = ['Chicago', 'Boston', 'New York']
+cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
+          'Las Vegas']
 all_events = []
 
 cities.each do |city|
@@ -23,7 +24,7 @@ cities.each do |city|
                 q: 'music',
                 where: city,
                 # date: '2013061000-2015062000',
-                page_size: 5,
+                page_size: 20,
                 sort_order: 'popularity' }
   city_events = eventful.call 'events/search/',
                               city_args
@@ -33,19 +34,21 @@ end
 def create_attractions(results)
   results.values[0].values[0].each do |attraction|
     p attraction
-    p 'XXXXXXXXX'
-    Attraction.create!(
-      city_name: attraction[:city_name],
-      country_name: attraction[:country_name],
-      title: attraction[:title],
-      description: attraction[:description],
-      owner: attraction[:owner],
-      start_time: attraction[:start_time],
-      stop_time: attraction[:stop_time],
-      all_day: attraction[:all_day],
-      venue_name: attraction[:venue_name],
-      venue_address: attraction[:venue_address],
-      venue_url: attraction[:venue_url]
+    p 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    p 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    p 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    Attraction.create(
+      city_name: attraction['city_name'],
+      country_name: attraction['country_name'],
+      title: attraction['title'],
+      description: attraction['description'],
+      owner: attraction['owner'],
+      start_time: attraction['start_time'],
+      stop_time: attraction['stop_time'],
+      all_day: attraction['all_day'],
+      venue_name: attraction['venue_name'],
+      venue_address: attraction['venue_address'],
+      venue_url: attraction['venue_url']
     )
   end
 end
