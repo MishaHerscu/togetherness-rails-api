@@ -13,7 +13,7 @@
 #
 
 require 'eventful/api'
-require_relative 'stopwords'
+require_relative 'modules/stopwords'
 
 # p 'env:', ENV['EVENTFUL_KEY']
 p 'getting seed data'
@@ -25,15 +25,16 @@ cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
 all_events = []
 
 cities.each do |city|
+  # args documentation:
+  # http://api.eventful.com/docs/events/search
+  # .gsub(/\u2028/, '')
   city_args = {
-    app_key: ENV['EVENTFUL_KEY'],
-    # q: 'music',
+    date: 'Future',
     where: city,
-    # date: '2013061000-2015062000',
-    # sort_order: 'popularity',
-    page_size: 10
+    page_size: 5,
+    page_number: 1
   }
-  city_events = eventful.call 'events/search/',
+  city_events = eventful.call 'events/search',
                               city_args
   all_events << city_events
 end
@@ -58,6 +59,7 @@ def create_attractions(results)
   end
 end
 
+p all_events.length
 all_events.each do |event|
   create_attractions(event)
 end
@@ -89,3 +91,24 @@ p interest_keywords_count_hash
 p unique_interest_keywords.length
 p filtered_interest_keywords.length
 p interest_keywords.length
+
+#
+# Save tags
+#
+
+def create_tag(keyword_hash, avg_usage)
+  keyword_hash.keys.each do |key|
+    Tag.create(
+      tag: key,
+      usages: keyword_hash[key],
+      relative_usage: ((100 * keyword_hash[key]) / avg_usage).floor
+    )
+  end
+end
+
+average_usage = interest_keywords_count_hash.values.inject(0, :+) /
+                interest_keywords_count_hash.values.length.to_f
+p 'average_usage'
+p average_usage
+
+create_tag(interest_keywords_count_hash, average_usage)
