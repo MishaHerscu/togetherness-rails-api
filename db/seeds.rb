@@ -31,7 +31,7 @@ cities.each do |city|
   city_args = {
     date: 'Future',
     where: city,
-    page_size: 5,
+    page_size: 25,
     page_number: 1
   }
   city_events = eventful.call 'events/search',
@@ -108,7 +108,28 @@ end
 
 average_usage = interest_keywords_count_hash.values.inject(0, :+) /
                 interest_keywords_count_hash.values.length.to_f
-p 'average_usage'
+p 'average_usage:'
 p average_usage
 
 create_tag(interest_keywords_count_hash, average_usage)
+
+#
+# Create Join Table between events and tags
+#
+
+all_attractions.each do |attraction|
+  city = attraction['city_name'] || ''
+  title = attraction['title'] || ''
+  venue = attraction['venue_name'] || ''
+  desc = attraction['description'] || ''
+  attraction_words_string = city << ' ' << title << ' ' << venue << ' ' << desc
+  attraction_words_array = attraction_words_string.downcase.gsub!(/[^0-9A-Za-z]/, ' ').split(' ')
+  filtered_attraction_words_array = attraction_words_array.select { |word| !Stopwords.stopwords.include? word }
+  unique_filtered_attraction_words_array = filtered_attraction_words_array.uniq
+  unique_filtered_attraction_words_array.each do |tag_word|
+    AttractionTag.create(
+      tag: Tag.find_by(tag: tag_word),
+      attraction: Attraction.find_by(title: attraction[:title])
+    )
+  end
+end

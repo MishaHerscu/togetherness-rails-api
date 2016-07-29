@@ -11,10 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160729024249) do
+ActiveRecord::Schema.define(version: 20160729033016) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "attraction_tags", force: :cascade do |t|
+    t.integer  "tag_id"
+    t.integer  "attraction_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "attraction_tags", ["attraction_id"], name: "index_attraction_tags_on_attraction_id", using: :btree
+  add_index "attraction_tags", ["tag_id"], name: "index_attraction_tags_on_tag_id", using: :btree
 
   create_table "attractions", force: :cascade do |t|
     t.string   "city_name"
@@ -60,5 +70,7 @@ ActiveRecord::Schema.define(version: 20160729024249) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["token"], name: "index_users_on_token", unique: true, using: :btree
 
+  add_foreign_key "attraction_tags", "attractions"
+  add_foreign_key "attraction_tags", "tags"
   add_foreign_key "examples", "users"
 end
