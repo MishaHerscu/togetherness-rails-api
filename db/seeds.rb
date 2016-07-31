@@ -22,65 +22,81 @@ eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 
 cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
-all_events = []
 
+def create_attraction(attraction)
+  attraction_params = {
+    eventful_id: attraction['id'] || '',
+    city_name: attraction['city_name'] || '',
+    country_name: attraction['country_name'] || '',
+    title: attraction['title'] || '',
+    description: attraction['description'] || '',
+    owner: attraction['owner'] || '',
+    db_start_time: attraction['start_time'] || '',
+    db_stop_time: attraction['stop_time'] || '',
+    event_date: attraction['start_time'].to_date || '',
+    event_time: attraction['start_time'].to_s.slice(11, 8) || '',
+    event_time_zone: attraction['start_time'].to_s.slice(-5, 5) || '',
+    all_day: attraction['all_day'] || '',
+    venue_id: attraction['venue_id'] || '',
+    venue_name: attraction['venue_name'] || '',
+    venue_address: attraction['venue_address'] || '',
+    postal_code: attraction['postal_code'] || '',
+    venue_url: attraction['venue_url'] || '',
+    geocode_type: attraction['geocode_type'] || '',
+    latitude: attraction['latitude'] || '',
+    longitude: attraction['longitude'] || '',
+    image_information: attraction['image'] || ''
+  }
+
+  if attraction['image'] &&
+     attraction['image']['medium'] &&
+     attraction['image']['medium']['url']
+    image_url = attraction['image']['medium']['url']
+    attraction_params['medium_image_url'] = image_url
+  end
+
+  Attraction.create attraction_params
+
+  p 'API call and save success'
+end
+
+max = 10
 cities.each do |city|
   # args documentation:
   # http://api.eventful.com/docs/events/search
   # .gsub(/\u2028/, '')
-  city_args = {
-    date: 'Future',
-    where: city,
-    page_size: 2,
-    page_number: 1
-  }
-  city_events = eventful.call 'events/search',
-                              city_args
-  all_events << city_events
-end
 
-def create_attractions(results)
-  results.values[0].values[0].each do |attraction|
-    p attraction
-    p 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    attraction_params = {
-      eventful_id: attraction['id'] || '',
-      city_name: attraction['city_name'] || '',
-      country_name: attraction['country_name'] || '',
-      title: attraction['title'] || '',
-      description: attraction['description'] || '',
-      owner: attraction['owner'] || '',
-      db_start_time: attraction['start_time'] || '',
-      db_stop_time: attraction['stop_time'] || '',
-      event_date: attraction['start_time'].to_date || '',
-      event_time: attraction['start_time'].to_s.slice(11, 8) || '',
-      event_time_zone: attraction['start_time'].to_s.slice(-5, 5) || '',
-      all_day: attraction['all_day'] || '',
-      venue_id: attraction['venue_id'] || '',
-      venue_name: attraction['venue_name'] || '',
-      venue_address: attraction['venue_address'] || '',
-      postal_code: attraction['postal_code'] || '',
-      venue_url: attraction['venue_url'] || '',
-      geocode_type: attraction['geocode_type'] || '',
-      latitude: attraction['latitude'] || '',
-      longitude: attraction['longitude'] || '',
-      image_information: attraction['image'] || ''
-    }
+  i = 0
+  page_size = 10
+  page_number = 1
 
-    if attraction['image'] &&
-       attraction['image']['medium'] &&
-       attraction['image']['medium']['url']
-      image_url = attraction['image']['medium']['url']
-      attraction_params['medium_image_url'] = image_url
+  while i < max
+
+    begin
+
+      city_args = {
+        date: 'Future',
+        where: city,
+        page_size: page_size,
+        page_number: page_number
+      }
+
+      city_events = eventful.call 'events/search', city_args
+
+      city_events['events']['event'].each do |event|
+        create_attraction(event) unless Attraction.find_by eventful_id: event['id']
+      end
+
+      i += 1
+    rescue StandardError => exception
+      p exception
+    else
+      p 'no exception'
+    ensure
+      p "#{city} API call #{i} complete"
     end
 
-    Attraction.create attraction_params
   end
-end
-
-p all_events.length
-all_events.each do |event|
-  create_attractions(event)
 end
 
 #
@@ -106,7 +122,6 @@ filtered_interest_keywords.each do |word|
   interest_keywords_count_hash[word] += 1
 end
 
-p interest_keywords_count_hash
 p unique_interest_keywords.length
 p filtered_interest_keywords.length
 p interest_keywords.length
