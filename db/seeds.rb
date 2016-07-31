@@ -31,7 +31,7 @@ cities.each do |city|
   city_args = {
     date: 'Future',
     where: city,
-    page_size: 25,
+    page_size: 2,
     page_number: 1
   }
   city_events = eventful.call 'events/search',
@@ -43,19 +43,38 @@ def create_attractions(results)
   results.values[0].values[0].each do |attraction|
     p attraction
     p 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    Attraction.create(
-      city_name: attraction['city_name'],
-      country_name: attraction['country_name'],
-      title: attraction['title'],
-      description: attraction['description'],
-      owner: attraction['owner'],
-      start_time: attraction['start_time'],
-      stop_time: attraction['stop_time'],
-      all_day: attraction['all_day'],
-      venue_name: attraction['venue_name'],
-      venue_address: attraction['venue_address'],
-      venue_url: attraction['venue_url']
-    )
+    attraction_params = {
+      eventful_id: attraction['id'] || '',
+      city_name: attraction['city_name'] || '',
+      country_name: attraction['country_name'] || '',
+      title: attraction['title'] || '',
+      description: attraction['description'] || '',
+      owner: attraction['owner'] || '',
+      db_start_time: attraction['start_time'] || '',
+      db_stop_time: attraction['stop_time'] || '',
+      event_date: attraction['start_time'].to_date || '',
+      event_time: attraction['start_time'].to_s.slice(11, 8) || '',
+      event_time_zone: attraction['start_time'].to_s.slice(-5, 5) || '',
+      all_day: attraction['all_day'] || '',
+      venue_id: attraction['venue_id'] || '',
+      venue_name: attraction['venue_name'] || '',
+      venue_address: attraction['venue_address'] || '',
+      postal_code: attraction['postal_code'] || '',
+      venue_url: attraction['venue_url'] || '',
+      geocode_type: attraction['geocode_type'] || '',
+      latitude: attraction['latitude'] || '',
+      longitude: attraction['longitude'] || '',
+      image_information: attraction['image'] || ''
+    }
+
+    if attraction['image'] &&
+       attraction['image']['medium'] &&
+       attraction['image']['medium']['url']
+      image_url = attraction['image']['medium']['url']
+      attraction_params['medium_image_url'] = image_url
+    end
+
+    Attraction.create attraction_params
   end
 end
 
