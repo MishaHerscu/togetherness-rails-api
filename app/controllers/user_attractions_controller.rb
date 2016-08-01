@@ -16,6 +16,11 @@ class UserAttractionsController < ProtectedController
     render json: @user_attraction
   end
 
+  def filter_to_key_words(array)
+    key_word_tags = Tag.where('relative_usage: < 70')
+    array.keep_if { |tag| key_word_tags.include?(tag) }
+  end
+
   def overlap(tag_array_1, tag_array_2)
     result = 0
     tag_array_1.each do |tag|
@@ -25,8 +30,10 @@ class UserAttractionsController < ProtectedController
   end
 
   def correlate_arrays(tag_array_1, tag_array_2)
-    first_comparison = overlap(tag_array_1, tag_array_2)
-    second_comparison = overlap(tag_array_2, tag_array_1)
+    filtered_array_1 = filter_to_key_words(tag_array_1)
+    filtered_array_2 = filter_to_key_words(tag_array_2)
+    first_comparison = overlap(filtered_array_1, filtered_array_2)
+    second_comparison = overlap(filtered_array_2, filtered_array_1)
     (first_comparison + second_comparison) / 2.to_f
   end
 
@@ -44,7 +51,7 @@ class UserAttractionsController < ProtectedController
       like: true
     )
     current_user_tag_ids = []
-    correlation_cutoff = 0.1
+    correlation_cutoff = 0.4
     current_user_tags.each do |tag|
       current_user_tag_ids << tag[:tag_id]
     end
