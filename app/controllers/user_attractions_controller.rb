@@ -17,7 +17,39 @@ class UserAttractionsController < ProtectedController
   end
 
   def refresh_user_events(user)
-    AttractionSuggestions.where('user_id = ?', user[:id]).delete_all
+    # Clear old attraction suggestions
+    AttractionSuggestion.where(user_id: user[:id]).delete_all
+
+    # get all AttractionSuggestions attractions
+    current_user_tags = UserTag.select('tag_id').where(
+      user_id: user[:id],
+      like: true
+    )
+    current_user_tag_ids = []
+    current_user_tags.each do |tag|
+      current_user_tag_ids << tag[:tag_id]
+    end
+    current_user_tags_count = current_user_tag_ids.length
+
+    Attraction.all.each do |attraction|
+      attraction_tags = AttractionTag.where(attraction_id: attraction[:id])
+      attraction_tag_ids = []
+      attraction_tags.each do |attraction_tag|
+        attraction_tag_ids << attraction_tag[:tag_id]
+      end
+      attraction_tags_count = attraction_tag_ids.length
+      p attraction_tags_count
+    end
+    p current_user_tags_count
+
+    # make new AttractionSuggestions
+    # attraction_suggestions.each do |attraction|
+    #   attraction_suggestion_params = {
+    #     user_id: user[:id],
+    #     attraction_id: attraction[:id]
+    #   }
+    #   AttractionSuggestion.create(attraction_suggestion_params)
+    # end
   end
 
   def update_user_tags(params)
