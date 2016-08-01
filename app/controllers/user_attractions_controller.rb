@@ -16,6 +16,10 @@ class UserAttractionsController < ProtectedController
     render json: @user_attraction
   end
 
+  def refresh_user_events(user)
+    AttractionSuggestions.where('user_id = ?', user[:id]).delete_all
+  end
+
   def update_user_tags(params)
     attraction_tags = AttractionTag.where 'attraction_id = ?',
                                           params[:attraction_id]
@@ -27,6 +31,7 @@ class UserAttractionsController < ProtectedController
       }
       UserTag.create(tag_params)
     end
+    refresh_user_events(@current_user)
   end
 
   # POST /user_attractions
