@@ -44,7 +44,7 @@ class UserAttractionsController < ProtectedController
       like: true
     )
     current_user_tag_ids = []
-    correlation_cutoff = 0.7
+    correlation_cutoff = 0.1
     current_user_tags.each do |tag|
       current_user_tag_ids << tag[:tag_id]
     end
