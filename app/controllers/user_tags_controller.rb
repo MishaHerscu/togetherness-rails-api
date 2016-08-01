@@ -1,5 +1,5 @@
 #
-class UserTagsController < ApplicationController
+class UserTagsController < ProtectedController
   before_action :set_user_tag, only: [:show, :update, :destroy]
 
   # GET /user_tags

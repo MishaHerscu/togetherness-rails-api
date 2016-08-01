@@ -1,4 +1,5 @@
-class AttractionTagsController < ApplicationController
+#
+class AttractionTagsController < ProtectedController
   before_action :set_attraction_tag, only: [:show, :update, :destroy]
 
   # GET /attraction_tags

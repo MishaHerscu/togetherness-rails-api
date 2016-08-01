@@ -1,5 +1,5 @@
 #
-class AttractionsController < ApplicationController
+class AttractionsController < ProtectedController
   before_action :set_attraction, only: [:show, :update, :destroy]
 
   # GET /attractions
