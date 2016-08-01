@@ -16,40 +16,63 @@ class UserAttractionsController < ProtectedController
     render json: @user_attraction
   end
 
+  def overlap(tag_array_1, tag_array_2)
+    result = 0
+    tag_array_1.each do |tag|
+      result += 1 if tag_array_2.include?(tag)
+    end
+    result / tag_array_1.length.to_f
+  end
+
+  def correlate_arrays(tag_array_1, tag_array_2)
+    first_comparison = overlap(tag_array_1, tag_array_2)
+    second_comparison = overlap(tag_array_2, tag_array_1)
+    (first_comparison + second_comparison) / 2.to_f
+  end
+
   def refresh_user_events(user)
     # Clear old attraction suggestions
     AttractionSuggestion.where(user_id: user[:id]).delete_all
 
+    #
     # get all AttractionSuggestions attractions
+    #
+
+    # first step: get current user tags
     current_user_tags = UserTag.select('tag_id').where(
       user_id: user[:id],
       like: true
     )
     current_user_tag_ids = []
+    correlation_cutoff = 0.7
     current_user_tags.each do |tag|
       current_user_tag_ids << tag[:tag_id]
     end
-    current_user_tags_count = current_user_tag_ids.length
 
+    # second step: get attractions that match
+    attraction_suggestions = []
     Attraction.all.each do |attraction|
       attraction_tags = AttractionTag.where(attraction_id: attraction[:id])
       attraction_tag_ids = []
       attraction_tags.each do |attraction_tag|
         attraction_tag_ids << attraction_tag[:tag_id]
       end
-      attraction_tags_count = attraction_tag_ids.length
-      p attraction_tags_count
+      average_correlation = correlate_arrays(current_user_tag_ids,
+                                             attraction_tag_ids)
+      p average_correlation
+      if average_correlation > correlation_cutoff
+        attraction_suggestions << attraction
+      end
     end
-    p current_user_tags_count
 
     # make new AttractionSuggestions
-    # attraction_suggestions.each do |attraction|
-    #   attraction_suggestion_params = {
-    #     user_id: user[:id],
-    #     attraction_id: attraction[:id]
-    #   }
-    #   AttractionSuggestion.create(attraction_suggestion_params)
-    # end
+    attraction_suggestions.each do |attraction|
+      attraction_suggestion_params = {
+        user_id: user[:id],
+        attraction_id: attraction[:id]
+      }
+      AttractionSuggestion.create(attraction_suggestion_params)
+    end
   end
 
   def update_user_tags(params)
