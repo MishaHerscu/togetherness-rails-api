@@ -5,7 +5,8 @@ class UserTagsController < ProtectedController
   # GET /user_tags
   # GET /user_tags.json
   def index
-    @user_tags = UserTag.all
+    @user_tags = UserTag.where 'user_id = ?',
+                               @current_user.id
 
     render json: @user_tags
   end
