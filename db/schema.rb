@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160731234131) do
+ActiveRecord::Schema.define(version: 20160731235750) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,9 +70,21 @@ ActiveRecord::Schema.define(version: 20160731234131) do
     t.datetime "updated_at",     null: false
   end
 
+  create_table "user_attractions", force: :cascade do |t|
+    t.integer  "attraction_id"
+    t.integer  "user_id"
+    t.boolean  "like"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "user_attractions", ["attraction_id"], name: "index_user_attractions_on_attraction_id", using: :btree
+  add_index "user_attractions", ["user_id"], name: "index_user_attractions_on_user_id", using: :btree
+
   create_table "user_tags", force: :cascade do |t|
     t.integer  "tag_id"
     t.integer  "user_id"
+    t.boolean  "like"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -94,6 +106,8 @@ ActiveRecord::Schema.define(version: 20160731234131) do
   add_foreign_key "attraction_tags", "attractions"
   add_foreign_key "attraction_tags", "tags"
   add_foreign_key "examples", "users"
+  add_foreign_key "user_attractions", "attractions"
+  add_foreign_key "user_attractions", "users"
   add_foreign_key "user_tags", "tags"
   add_foreign_key "user_tags", "users"
 end
