@@ -17,13 +17,13 @@ class UserAttractionsController < ProtectedController
   end
 
   def update_user_tags(params)
-    attraction_tags = AttractionTag.find_by attraction_id params[:attraction_id]
-    p attraction_tags
+    attraction_tags = AttractionTag.where 'attraction_id = ?',
+                                          params[:attraction_id]
     attraction_tags.each do |attraction_tag|
       tag_params = {
-        tag: attraction_tag[:tag_id],
-        user: @current_user,
-        like: user_attraction_params[:like]
+        tag_id: attraction_tag[:tag_id],
+        user_id: @current_user.id,
+        like: params[:like]
       }
       UserTag.create(tag_params)
     end
