@@ -49,11 +49,11 @@ class AttractionTagsController < ApplicationController
 
   private
 
-    def set_attraction_tag
-      @attraction_tag = AttractionTag.find(params[:id])
-    end
+  def set_attraction_tag
+    @attraction_tag = AttractionTag.find(params[:id])
+  end
 
-    def attraction_tag_params
-      params.require(:attraction_tag).permit(:tag_id, :attraction_id)
-    end
+  def attraction_tag_params
+    params.require(:attraction_tag).permit(:tag_id, :attraction_id)
+  end
 end

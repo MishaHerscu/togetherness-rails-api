@@ -1,3 +1,4 @@
+#
 class TagsController < ApplicationController
   before_action :set_tag, only: [:show, :update, :destroy]
 
@@ -49,11 +50,11 @@ class TagsController < ApplicationController
 
   private
 
-    def set_tag
-      @tag = Tag.find(params[:id])
-    end
+  def set_tag
+    @tag = Tag.find(params[:id])
+  end
 
-    def tag_params
-      params.require(:tag).permit(:tag, :usages, :relative_usage)
-    end
+  def tag_params
+    params.require(:tag).permit(:tag, :usages, :relative_usage)
+  end
 end

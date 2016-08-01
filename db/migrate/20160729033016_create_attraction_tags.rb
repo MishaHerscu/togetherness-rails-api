@@ -1,3 +1,4 @@
+#
 class CreateAttractionTags < ActiveRecord::Migration
   def change
     create_table :attraction_tags do |t|

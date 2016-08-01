@@ -50,11 +50,11 @@ class UserTagsController < ApplicationController
 
   private
 
-    def set_user_tag
-      @user_tag = UserTag.find(params[:id])
-    end
+  def set_user_tag
+    @user_tag = UserTag.find(params[:id])
+  end
 
-    def user_tag_params
-      params.require(:user_tag).permit(:tag_id, :user_id)
-    end
+  def user_tag_params
+    params.require(:user_tag).permit(:tag_id, :user_id, :like)
+  end
 end
