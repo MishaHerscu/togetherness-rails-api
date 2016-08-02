@@ -30,10 +30,10 @@ class UserAttractionsController < ProtectedController
   end
 
   def correlate_arrays(tag_array_1, tag_array_2)
-    # filtered_array_1 = filter_to_key_words(tag_array_1)
-    # filtered_array_2 = filter_to_key_words(tag_array_2)
-    filtered_array_1 = tag_array_1 # temporary
-    filtered_array_2 = tag_array_2 # temporary
+    # filtered_array_1 = filter_to_key_words(tag_array_1.uniq.compact)
+    # filtered_array_2 = filter_to_key_words(tag_array_2.uniq.compact)
+    filtered_array_1 = tag_array_1.uniq.compact # temporary
+    filtered_array_2 = tag_array_2.uniq.compact # temporary
     first_comparison = overlap(filtered_array_1, filtered_array_2)
     second_comparison = overlap(filtered_array_2, filtered_array_1)
     (first_comparison + second_comparison) / 2.to_f
