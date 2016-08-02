@@ -14,7 +14,7 @@ class UserTagsController < ProtectedController
   # GET /user_tags/1
   # GET /user_tags/1.json
   def show
-    render json: @user_tag
+    render json: @user_tag if @user_tag.user_id == @current_user.id
   end
 
   # POST /user_tags
@@ -34,17 +34,19 @@ class UserTagsController < ProtectedController
   def update
     @user_tag = UserTag.find(params[:id])
 
-    if @user_tag.update(user_tag_params)
-      head :no_content
-    else
-      render json: @user_tag.errors, status: :unprocessable_entity
+    if @user_tag.user_id == @current_user.id
+      if @user_tag.update(user_tag_params)
+        head :no_content
+      else
+        render json: @user_tag.errors, status: :unprocessable_entity
+      end
     end
   end
 
   # DELETE /user_tags/1
   # DELETE /user_tags/1.json
   def destroy
-    @user_tag.destroy
+    @user_tag.destroy if @user_tag.user_id == @current_user.id
 
     head :no_content
   end

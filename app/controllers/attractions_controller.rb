@@ -31,6 +31,7 @@ class AttractionsController < ProtectedController
   # PATCH/PUT /attractions/1
   # PATCH/PUT /attractions/1.json
   def update
+    return false if @current_user.admin == false
     @attraction = Attraction.find(params[:id])
 
     if @attraction.update(attraction_params)
@@ -43,6 +44,7 @@ class AttractionsController < ProtectedController
   # DELETE /attractions/1
   # DELETE /attractions/1.json
   def destroy
+    return false if @current_user.admin == false
     @attraction.destroy
 
     head :no_content

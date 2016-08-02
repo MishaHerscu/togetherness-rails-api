@@ -5,6 +5,7 @@ class TagsController < ProtectedController
   # GET /tags
   # GET /tags.json
   def index
+    # return false if @current_user.admin == false
     @tags = Tag.all
 
     render json: @tags
@@ -13,12 +14,14 @@ class TagsController < ProtectedController
   # GET /tags/1
   # GET /tags/1.json
   def show
+    # return false if @current_user.admin == false
     render json: @tag
   end
 
   # POST /tags
   # POST /tags.json
   def create
+    # return false if @current_user.admin == false
     @tag = Tag.new(tag_params)
 
     if @tag.save
@@ -31,6 +34,7 @@ class TagsController < ProtectedController
   # PATCH/PUT /tags/1
   # PATCH/PUT /tags/1.json
   def update
+    return false if @current_user.admin == false
     @tag = Tag.find(params[:id])
 
     if @tag.update(tag_params)
@@ -43,6 +47,7 @@ class TagsController < ProtectedController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
+    return false if @current_user.admin == false
     @tag.destroy
 
     head :no_content

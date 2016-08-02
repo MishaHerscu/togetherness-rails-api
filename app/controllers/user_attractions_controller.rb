@@ -5,7 +5,8 @@ class UserAttractionsController < ProtectedController
   # GET /user_attractions
   # GET /user_attractions.json
   def index
-    @user_attractions = UserAttraction.all
+    @user_attractions = UserAttraction.where 'user_id = ?',
+                                             @current_user.id
 
     render json: @user_attractions
   end
@@ -13,7 +14,9 @@ class UserAttractionsController < ProtectedController
   # GET /user_attractions/1
   # GET /user_attractions/1.json
   def show
-    render json: @user_attraction
+    if @user_attractions.user_id == @current_user.id
+      render json: @user_attraction
+    end
   end
 
   # def filter_to_key_words(array)
@@ -115,17 +118,19 @@ class UserAttractionsController < ProtectedController
   def update
     @user_attraction = UserAttraction.find(params[:id])
 
-    if @user_attraction.update(user_attraction_params)
-      head :no_content
-    else
-      render json: @user_attraction.errors, status: :unprocessable_entity
+    if @user_attraction.user_id == @current_user.id
+      if @user_attraction.update(user_attraction_params)
+        head :no_content
+      else
+        render json: @user_attraction.errors, status: :unprocessable_entity
+      end
     end
   end
 
   # DELETE /user_attractions/1
   # DELETE /user_attractions/1.json
   def destroy
-    @user_attraction.destroy
+    @user_attraction.destroy if @user_attraction.user_id == @current_user.id
 
     head :no_content
   end

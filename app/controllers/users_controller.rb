@@ -4,7 +4,9 @@ class UsersController < ProtectedController
 
   # POST '/sign-up'
   def signup
-    user = User.create(user_creds)
+    user_credentials = user_creds
+    user_credentials[:admin] = false
+    user = User.create(user_credentials)
     if user.valid?
       render json: user, status: :created
     else
@@ -55,6 +57,11 @@ class UsersController < ProtectedController
 
   def update
     head :bad_request
+  end
+
+  def destroy
+    User.find(@current_user).destroy
+    head :no_content
   end
 
   private

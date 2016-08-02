@@ -106,6 +106,7 @@ ActiveRecord::Schema.define(version: 20160801161657) do
     t.string   "email",           null: false
     t.string   "token",           null: false
     t.string   "password_digest", null: false
+    t.boolean  "admin",           null: false
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end

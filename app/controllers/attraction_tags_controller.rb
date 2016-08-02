@@ -31,6 +31,7 @@ class AttractionTagsController < ProtectedController
   # PATCH/PUT /attraction_tags/1
   # PATCH/PUT /attraction_tags/1.json
   def update
+    return false if @current_user.admin == false
     @attraction_tag = AttractionTag.find(params[:id])
 
     if @attraction_tag.update(attraction_tag_params)
@@ -43,6 +44,7 @@ class AttractionTagsController < ProtectedController
   # DELETE /attraction_tags/1
   # DELETE /attraction_tags/1.json
   def destroy
+    return false if @current_user.admin == false
     @attraction_tag.destroy
 
     head :no_content
