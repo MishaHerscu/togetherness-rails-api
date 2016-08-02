@@ -18,7 +18,7 @@ require_relative 'modules/stopwords'
 # p 'env:', ENV['EVENTFUL_KEY']
 p 'getting seed data'
 
-eventful = Eventful::API.new ENV['EVENTFUL_KEY']
+eventful = Eventful::API.new mc4RZZBW44DvrqnW
 
 cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
