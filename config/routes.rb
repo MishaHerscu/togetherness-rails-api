@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :cities, except: [:new, :edit]
   resources :attraction_suggestions, except: [:new, :edit]
   resources :user_attractions, except: [:new, :edit]
   resources :user_tags, except: [:new, :edit]

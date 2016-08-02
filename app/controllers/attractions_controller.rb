@@ -57,9 +57,9 @@ class AttractionsController < ProtectedController
   end
 
   def attraction_params
-    params.require(:attraction).permit(:eventful_id, :city_name, :country_name,
-                                       :title, :description, :owner,
-                                       :db_start_time, :db_stop_time,
+    params.require(:attraction).permit(:eventful_id, :city_id, :city_name,
+                                       :country_name, :title, :description,
+                                       :owner, :db_start_time, :db_stop_time,
                                        :event_date, :event_time,
                                        :event_time_zone, :all_day, :venue_id,
                                        :venue_name, :venue_address,

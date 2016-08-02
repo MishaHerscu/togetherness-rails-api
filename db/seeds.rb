@@ -23,6 +23,8 @@ eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
 
+cities.each { |city| City.create city }
+
 def create_attraction(attraction)
   attraction_params = {
     eventful_id: attraction['id'] || '',
