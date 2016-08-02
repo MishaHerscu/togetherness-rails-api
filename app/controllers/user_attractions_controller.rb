@@ -1,4 +1,4 @@
-#
+# This is the controller where the important recommendation engine is
 class UserAttractionsController < ProtectedController
   before_action :set_user_attraction, only: [:show, :update, :destroy]
 
