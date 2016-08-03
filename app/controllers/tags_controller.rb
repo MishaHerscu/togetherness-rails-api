@@ -1,6 +1,7 @@
 #
 class TagsController < ProtectedController
   before_action :set_tag, only: [:show, :update, :destroy]
+  skip_before_action :authenticate, only: [:show, :index, :create]
 
   # GET /tags
   # GET /tags.json
