@@ -5,4 +5,8 @@ class AttractionSerializer < ActiveModel::Serializer
              :event_time, :event_time_zone, :all_day, :venue_id, :venue_name,
              :venue_address, :postal_code, :venue_url, :geocode_type, :latitude,
              :longitude, :image_information, :medium_image_url
+
+  def city
+    object.city.id
+  end
 end

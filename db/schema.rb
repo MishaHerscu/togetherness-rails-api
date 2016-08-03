@@ -38,7 +38,7 @@ ActiveRecord::Schema.define(version: 20160802224957) do
 
   create_table "attractions", force: :cascade do |t|
     t.string   "eventful_id"
-    t.string   "city_id"
+    t.integer  "city_id"
     t.string   "city_name"
     t.string   "country_name"
     t.string   "title"

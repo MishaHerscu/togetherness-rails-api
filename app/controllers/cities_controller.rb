@@ -1,6 +1,7 @@
 #
 class CitiesController < ProtectedController
   before_action :set_city, only: [:show, :update, :destroy]
+  skip_before_action :authenticate, only: [:show, :index]
 
   # GET /cities
   # GET /cities.json

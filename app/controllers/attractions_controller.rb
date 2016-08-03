@@ -1,6 +1,7 @@
 #
 class AttractionsController < ProtectedController
   before_action :set_attraction, only: [:show, :update, :destroy]
+  skip_before_action :authenticate, only: [:show, :index]
 
   # GET /attractions
   # GET /attractions.json
