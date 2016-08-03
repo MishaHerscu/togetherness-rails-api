@@ -1,6 +1,6 @@
 #
 class TripSerializer < ActiveModel::Serializer
-  attributes :id, :start_date, :end_date, :attendances
+  attributes :id, :city_id, :user_id, :start_date, :end_date, :attendances
   has_one :user
   has_one :city
 
