@@ -28,6 +28,7 @@ cities.each { |city| City.create(name: city) }
 def create_attraction(attraction)
   attraction_params = {
     eventful_id: attraction['id'] || '',
+    city_id: attraction['city_id'] || '',
     city_name: attraction['city_name'] || '',
     country_name: attraction['country_name'] || '',
     title: attraction['title'] || '',
@@ -86,6 +87,8 @@ cities.each do |city|
       city_events = eventful.call 'events/search', city_args
 
       city_events['events']['event'].each do |event|
+        city_id = City.find_by name: city
+        event['city_id'] = city_id['id']
         create_attraction(event) unless Attraction.find_by eventful_id: event['id']
       end
 
