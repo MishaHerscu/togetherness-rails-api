@@ -177,12 +177,5 @@
 #
 # # save data to seed_data csv after deleting the old one
 # # https://www.postgresql.org/docs/9.1/static/backup-dump.html
-# File.delete('seed_data.csv') if File.exist?('seed_data.csv')
-# system('pg_dump togetherness_development > seed_data.csv')
-# begin
-#   system('dropdb togetherness_development')
-# end
-# begin
-#   system('createdb togetherness_development')
-# end
-# system('psql togetherness_development < seed_data.csv')
+# File.delete('seed_data.dump') if File.exist?('seed_data.dump')
+# system('pg_dump -Fc togetherness_development > seed_data.dump')

@@ -5,4 +5,4 @@ end
 begin
   system('createdb togetherness_development')
 end
-system('psql togetherness_development < seed_data.csv')
+system('pg_restore -d togetherness_development seed_data.dump')

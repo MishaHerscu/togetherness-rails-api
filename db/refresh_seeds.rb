@@ -1,3 +1,6 @@
+# This file doesn't work because it doesn't have access to models e.g. City.
+# How do you give it access?
+
 # This file should contain all the record creation needed to seed the database
 # with its default values.
 # The data can then be loaded with the rake db:seed (or created alongside the db
@@ -175,12 +178,5 @@ end
 
 # save data to seed_data csv after deleting the old one
 # https://www.postgresql.org/docs/9.1/static/backup-dump.html
-File.delete('seed_data.csv') if File.exist?('seed_data.csv')
-system('pg_dump togetherness_development > seed_data.csv')
-begin
-  system('dropdb togetherness_development')
-end
-begin
-  system('createdb togetherness_development')
-end
-system('psql togetherness_development < seed_data.csv')
+File.delete('seed_data.dump') if File.exist?('seed_data.dump')
+system('pg_dump -Fc togetherness_development > seed_data.dump')
