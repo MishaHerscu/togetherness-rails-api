@@ -62,7 +62,7 @@ def create_attraction(attraction)
   p 'API call and save success'
 end
 
-max = 10
+max = 15
 cities.each do |city|
   # args documentation:
   # http://api.eventful.com/docs/events/search
