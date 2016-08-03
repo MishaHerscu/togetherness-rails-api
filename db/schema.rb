@@ -11,10 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160802224957) do
+ActiveRecord::Schema.define(version: 20160803145907) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "attendances", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "trip_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "attendances", ["trip_id"], name: "index_attendances_on_trip_id", using: :btree
+  add_index "attendances", ["user_id"], name: "index_attendances_on_user_id", using: :btree
 
   create_table "attraction_suggestions", force: :cascade do |t|
     t.integer  "user_id"
@@ -87,6 +97,18 @@ ActiveRecord::Schema.define(version: 20160802224957) do
     t.datetime "updated_at",     null: false
   end
 
+  create_table "trips", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "city_id"
+    t.date     "start_date"
+    t.date     "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "trips", ["city_id"], name: "index_trips_on_city_id", using: :btree
+  add_index "trips", ["user_id"], name: "index_trips_on_user_id", using: :btree
+
   create_table "user_attractions", force: :cascade do |t|
     t.integer  "attraction_id"
     t.integer  "user_id"
@@ -121,11 +143,15 @@ ActiveRecord::Schema.define(version: 20160802224957) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["token"], name: "index_users_on_token", unique: true, using: :btree
 
+  add_foreign_key "attendances", "trips"
+  add_foreign_key "attendances", "users"
   add_foreign_key "attraction_suggestions", "attractions"
   add_foreign_key "attraction_suggestions", "users"
   add_foreign_key "attraction_tags", "attractions"
   add_foreign_key "attraction_tags", "tags"
   add_foreign_key "examples", "users"
+  add_foreign_key "trips", "cities"
+  add_foreign_key "trips", "users"
   add_foreign_key "user_attractions", "attractions"
   add_foreign_key "user_attractions", "users"
   add_foreign_key "user_tags", "tags"
