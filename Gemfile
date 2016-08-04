@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 ruby '2.3.0'
 
+gem 'paperclip', '~> 5.0.0'
+gem 'aws-sdk', '>= 2.0.34'
 gem 'eventfulapi'
 gem 'dotenv-rails', groups: [:development, :test, :production]
 
