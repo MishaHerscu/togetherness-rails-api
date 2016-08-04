@@ -1,19 +1,17 @@
 #
 class TripSerializer < ActiveModel::Serializer
-  attributes :id, :name, :notes, :city_id, :user_id, :start_date,
+  attributes :id, :name, :notes, :city, :user, :start_date,
              :end_date, :attendances
-  has_one :user
-  has_one :city
 
   def attendances
     object.attendances.pluck(:id)
   end
 
-  def user_id
+  def user
     object.user.id
   end
 
-  def city_id
+  def city
     object.city.id
   end
 end
