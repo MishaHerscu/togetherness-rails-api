@@ -14,7 +14,7 @@ class AttendancesController < ProtectedController
   # GET /attendances/1
   # GET /attendances/1.json
   def show
-    return false if @trip.user_id != @current_user.id
+    return false if @attendance.user_id != @current_user.id
     render json: @attendance
   end
 
