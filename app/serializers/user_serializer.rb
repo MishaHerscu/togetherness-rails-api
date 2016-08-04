@@ -1,6 +1,7 @@
 #
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :admin, :trips, :attendances
+  attributes :id, :email, :admin, :given_name, :surname, :avatar,
+             :trips, :attendances
 
   def trips
     object.trips.pluck(:id)
