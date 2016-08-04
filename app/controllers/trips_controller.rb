@@ -66,7 +66,7 @@ class TripsController < ProtectedController
   end
 
   def trip_params
-    params.require(:trip).permit(:name, :user_id, :city_id, :start_date,
+    params.require(:trip).permit(:name, :notes, :user_id, :city_id, :start_date,
                                  :end_date)
   end
 end
