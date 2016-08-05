@@ -6,6 +6,8 @@ class UsersController < ProtectedController
   def signup
     user_credentials = user_creds
     user_credentials[:admin] = false
+    binding.pry
+
     user = User.create(user_credentials)
     if user.valid?
       render json: user, status: :created
