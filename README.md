@@ -4,8 +4,8 @@ The application will be a way for people to get travel recommendations. It store
 
 The event data is from the eventful.com API / feed.
 
--   The server will store the event information as well as information about users.
--   The client will provide the UX and uses Ember.
+-   The Rails server stores the event information as well as information about users.
+-   The Ember client will provide the UX.
 
 Planning materials include:
 
