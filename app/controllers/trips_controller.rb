@@ -22,14 +22,9 @@ class TripsController < ProtectedController
   # POST /trips.json
   def create
     @trip = Trip.new(trip_params)
-
+    @trip.user_id = @current_user.id
     if @trip.save
-
-      Attendance.create(
-        user_id: @current_user.id,
-        trip_id: @trip.id
-      )
-
+      Attendance.create(user_id: @current_user.id, trip_id: @trip.id)
       render json: @trip, status: :created, location: @trip
     else
       render json: @trip.errors, status: :unprocessable_entity
