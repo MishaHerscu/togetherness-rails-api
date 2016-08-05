@@ -1,12 +1,14 @@
 #
 class AttendanceSerializer < ActiveModel::Serializer
-  attributes :id, :user, :trip
+  attributes :id, :user_id, :trip_id
+  has_one :user
+  has_one :trip
 
-  def user
+  def user_id
     object.user.id
   end
 
-  def trip
+  def trip_id
     object.trip.id
   end
 end
