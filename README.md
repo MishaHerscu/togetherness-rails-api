@@ -13,6 +13,6 @@ Planning materials include:
 -   [Wireframes](https://docs.google.com/presentation/d/15TRYBmORQn0iqKwt6i4cizsEjWaTPJljxTEoAjYFQGM/edit?usp=sharing)
 -   [Entity Relationship Diagrams](https://docs.google.com/presentation/d/18CKBN6WoKKVG755LulQ2S4Ib5Hs00h_D-cvTbg6h7nQ/edit?usp=sharing)
 
-The Client repo is [here](https://github.com/MishaHerscu/togetherness-ember-client/blob/master/README.md).
+The Client repo is [here](https://github.com/MishaHerscu/togetherness-ember-client).
 
 The application is [here](http://www.apricitytravel.com/).
