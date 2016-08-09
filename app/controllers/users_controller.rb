@@ -6,7 +6,6 @@ class UsersController < ProtectedController
   def signup
     user_credentials = user_creds
     user_credentials[:admin] = false
-    binding.pry
 
     user = User.create(user_credentials)
     if user.valid?
@@ -71,7 +70,7 @@ class UsersController < ProtectedController
   def user_creds
     params.require(:credentials)
           .permit(:email, :password, :password_confirmation, :given_name,
-                  :surname, :avatar)
+                  :surname)
   end
 
   def pw_creds
