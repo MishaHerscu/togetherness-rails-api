@@ -1,6 +1,6 @@
 #
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :admin, :given_name, :surname,
+  attributes :id, :email, :admin, :givenname, :surname,
              :trips, :attendances
 
   def trips
