@@ -1,6 +1,12 @@
 #
 class UserAttractionSerializer < ActiveModel::Serializer
-  attributes :id, :like, :attraction_id, :user_id
-  has_one :attraction
-  has_one :user
+  attributes :id, :like, :attraction, :user
+
+  def attraction
+    object.attraction.id
+  end
+
+  def user
+    object.user.id
+  end
 end

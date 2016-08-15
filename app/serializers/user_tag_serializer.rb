@@ -1,6 +1,12 @@
 #
 class UserTagSerializer < ActiveModel::Serializer
-  attributes :id, :like, :tag_id, :user_id
-  has_one :tag
-  has_one :user
+  attributes :id, :like, :tag, :user
+
+  def tag
+    object.tag.id
+  end
+
+  def user
+    object.user.id
+  end
 end

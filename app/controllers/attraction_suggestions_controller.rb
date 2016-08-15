@@ -7,7 +7,6 @@ class AttractionSuggestionsController < ProtectedController
   def index
     @attraction_suggestions = AttractionSuggestion.where 'user_id = ?',
                                                          @current_user.id
-
     render json: @attraction_suggestions
   end
 
@@ -61,6 +60,6 @@ class AttractionSuggestionsController < ProtectedController
   end
 
   def attraction_suggestion_params
-    params.require(:attraction_suggestion).permit(:user_id, :attraction_id)
+    params.require(:attraction_suggestion).permit(:user, :attraction)
   end
 end

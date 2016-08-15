@@ -1,6 +1,12 @@
 #
 class AttractionTagSerializer < ActiveModel::Serializer
-  attributes :id, :tag_id, :attraction_id
-  has_one :tag
-  has_one :attraction
+  attributes :id, :tag, :attraction
+
+  def tag
+    object.tag.id
+  end
+
+  def attraction
+    object.attraction.id
+  end
 end
