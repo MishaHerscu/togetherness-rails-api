@@ -1,3 +1,4 @@
+#
 class CreateAttractionSuggestions < ActiveRecord::Migration
   def change
     create_table :attraction_suggestions do |t|

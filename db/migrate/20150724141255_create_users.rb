@@ -9,6 +9,9 @@ class CreateUsers < ActiveRecord::Migration
       t.string :givenname, null: false
       t.string :surname, null: false
 
+      # t.references :friend
+      # t.references :friendrequest
+
       t.timestamps null: false
     end
   end
