@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160815213549) do
+ActiveRecord::Schema.define(version: 20160815221643) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,6 +89,13 @@ ActiveRecord::Schema.define(version: 20160815213549) do
 
   add_index "examples", ["user_id"], name: "index_examples_on_user_id", using: :btree
 
+  create_table "friend_requests", force: :cascade do |t|
+    t.integer  "requesting_user_id"
+    t.integer  "requested_user_id"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
   create_table "friends", force: :cascade do |t|
     t.integer  "requesting_user_id"
     t.integer  "requested_user_id"
@@ -147,7 +154,6 @@ ActiveRecord::Schema.define(version: 20160815213549) do
     t.boolean  "admin",           null: false
     t.string   "givenname",       null: false
     t.string   "surname",         null: false
-    t.integer  "friend_id"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end
