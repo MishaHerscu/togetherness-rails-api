@@ -1,7 +1,7 @@
 #
 class CreateFriends < ActiveRecord::Migration
   def change
-    create_table :friends do |t|
+    create_table :friend_requests do |t|
       t.references :requesting_user
       t.references :requested_user
 
