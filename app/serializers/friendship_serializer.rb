@@ -1,5 +1,5 @@
 #
-class FriendRequestSerializer < ActiveModel::Serializer
+class FriendshipSerializer < ActiveModel::Serializer
   attributes :id, :user, :requested_user
 
   def user

@@ -20,8 +20,11 @@ class UserTagsController < ProtectedController
   # POST /user_tags
   # POST /user_tags.json
   def create
-    @user_tag = UserTag.new(user_tag_params)
-
+    begin
+      @user_tag = UserTag.new(user_tag_params)
+    rescue ActiveRecord::RecordNotUnique
+      p 'attempted duplicate record creation'
+    end
     if @user_tag.save
       render json: @user_tag, status: :created, location: @user_tag
     else

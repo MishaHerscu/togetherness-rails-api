@@ -21,8 +21,11 @@ class AttractionSuggestionsController < ProtectedController
   # POST /attraction_suggestions
   # POST /attraction_suggestions.json
   def create
-    @attraction_suggestion = AttractionSuggestion.new(attraction_suggestion_params)
-
+    begin
+      @attraction_suggestion = AttractionSuggestion.new(attraction_suggestion_params)
+    rescue ActiveRecord::RecordNotUnique
+      p 'attempted duplicate record creation'
+    end
     if @attraction_suggestion.save
       render json: @attraction_suggestion, status: :created, location: @attraction_suggestion
     else

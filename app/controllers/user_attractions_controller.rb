@@ -103,8 +103,11 @@ class UserAttractionsController < ProtectedController
   # POST /user_attractions
   # POST /user_attractions.json
   def create
-    @user_attraction = UserAttraction.new(user_attraction_params)
-
+    begin
+      @user_attraction = UserAttraction.new(user_attraction_params)
+    rescue ActiveRecord::RecordNotUnique
+      p 'attempted duplicate record creation'
+    end
     if @user_attraction.save
       update_user_tags(user_attraction_params)
       render json: @user_attraction, status: :created, location: @user_attraction

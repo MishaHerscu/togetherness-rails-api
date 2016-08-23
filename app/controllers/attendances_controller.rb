@@ -21,8 +21,11 @@ class AttendancesController < ProtectedController
   # POST /attendances
   # POST /attendances.json
   def create
-    @attendance = Attendance.new(attendance_params)
-
+    begin
+      @attendance = Attendance.new(attendance_params)
+    rescue ActiveRecord::RecordNotUnique
+      p 'attempted duplicate record creation'
+    end
     if @attendance.save
       render json: @attendance, status: :created, location: @attendance
     else

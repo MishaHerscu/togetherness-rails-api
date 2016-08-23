@@ -5,8 +5,8 @@ class FriendRequestsController < ProtectedController
   # GET /friend_requests
   # GET /friend_requests.json
   def index
-    @friend_requests = FriendRequest.where 'requesting_user = ?',
-                                           @current_user.id
+    @friend_requests = FriendRequest.where 'user = ?',
+                                           @current_user
 
     render json: @friend_requests
   end
@@ -14,15 +14,19 @@ class FriendRequestsController < ProtectedController
   # GET /friend_requests/1
   # GET /friend_requests/1.json
   def show
-    return false if @friend_request.requesting_user.id != @current_user.id
+    return false if @friend_request.user.id != @current_user.id
     render json: @friend_request
   end
 
   # POST /friend_requests
   # POST /friend_requests.json
   def create
-    @friend_request = FriendRequest.new(friend_request_params)
-
+    begin
+      @friend_request = FriendRequest.new(friend_request_params)
+      @friend_request.user_id = @current_user.id
+    rescue ActiveRecord::RecordNotUnique
+      p 'attempted duplicate record creation'
+    end
     if @friend_request.save
       render json: @friend_request, status: :created, location: @friend_request
     else
@@ -33,7 +37,7 @@ class FriendRequestsController < ProtectedController
   # PATCH/PUT /friend_requests/1
   # PATCH/PUT /friend_requests/1.json
   def update
-    return false if @friend_request.requesting_user.id != @current_user.id
+    return false if @friend_request.user.id != @current_user.id
     @friend_request = FriendRequest.find(params[:id])
 
     if @friend_request.update(friend_request_params)
@@ -46,7 +50,7 @@ class FriendRequestsController < ProtectedController
   # DELETE /friend_requests/1
   # DELETE /friend_requests/1.json
   def destroy
-    return false if @friend_request.requesting_user.id != @current_user.id
+    return false if @friend_request.user.id != @current_user.id
     @friend_request.destroy
 
     head :no_content
@@ -59,6 +63,6 @@ class FriendRequestsController < ProtectedController
   end
 
   def friend_request_params
-    params.require(:friend_request).permit(:requested_user, :requesting_user)
+    params.require(:friend_request).permit(:user_id, :requested_user_id)
   end
 end

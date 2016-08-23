@@ -8,6 +8,7 @@ class CreateTrips < ActiveRecord::Migration
       t.belongs_to :city, index: true, foreign_key: true
       t.date :start_date
       t.date :end_date
+      t.index [:city_id, :user_id]
 
       t.timestamps null: false
     end

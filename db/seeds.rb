@@ -168,10 +168,14 @@
 #   filtered_attraction_words_array = attraction_words_array.select { |word| !Stopwords.stopwords.include? word }
 #   unique_filtered_attraction_words_array = filtered_attraction_words_array.uniq
 #   unique_filtered_attraction_words_array.each do |tag_word|
-#     AttractionTag.create(
-#       tag: Tag.find_by(tag: tag_word),
-#       attraction: Attraction.find_by(title: attraction[:title])
-#     )
+#     begin
+#       AttractionTag.create(
+#         tag: Tag.find_by(tag: tag_word),
+#         attraction: Attraction.find_by(title: attraction[:title])
+#       )
+#     rescue ActiveRecord::RecordNotUnique
+#       p 'attempted duplicate record creation in seeds.rb file'
+#     end
 #   end
 # end
 #

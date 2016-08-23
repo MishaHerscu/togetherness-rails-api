@@ -17,33 +17,36 @@ ActiveRecord::Schema.define(version: 20160815221643) do
   enable_extension "plpgsql"
 
   create_table "attendances", force: :cascade do |t|
-    t.integer  "user_id"
-    t.integer  "trip_id"
+    t.integer  "user_id",    null: false
+    t.integer  "trip_id",    null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  add_index "attendances", ["trip_id", "user_id"], name: "index_attendances_on_trip_id_and_user_id", unique: true, using: :btree
   add_index "attendances", ["trip_id"], name: "index_attendances_on_trip_id", using: :btree
   add_index "attendances", ["user_id"], name: "index_attendances_on_user_id", using: :btree
 
   create_table "attraction_suggestions", force: :cascade do |t|
-    t.integer  "user_id"
-    t.integer  "attraction_id"
+    t.integer  "user_id",       null: false
+    t.integer  "attraction_id", null: false
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
   end
 
+  add_index "attraction_suggestions", ["attraction_id", "user_id"], name: "index_attraction_suggestions_on_attraction_id_and_user_id", unique: true, using: :btree
   add_index "attraction_suggestions", ["attraction_id"], name: "index_attraction_suggestions_on_attraction_id", using: :btree
   add_index "attraction_suggestions", ["user_id"], name: "index_attraction_suggestions_on_user_id", using: :btree
 
   create_table "attraction_tags", force: :cascade do |t|
-    t.integer  "tag_id"
-    t.integer  "attraction_id"
+    t.integer  "tag_id",        null: false
+    t.integer  "attraction_id", null: false
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
   end
 
   add_index "attraction_tags", ["attraction_id"], name: "index_attraction_tags_on_attraction_id", using: :btree
+  add_index "attraction_tags", ["tag_id", "attraction_id"], name: "index_attraction_tags_on_tag_id_and_attraction_id", unique: true, using: :btree
   add_index "attraction_tags", ["tag_id"], name: "index_attraction_tags_on_tag_id", using: :btree
 
   create_table "attractions", force: :cascade do |t|
@@ -90,18 +93,24 @@ ActiveRecord::Schema.define(version: 20160815221643) do
   add_index "examples", ["user_id"], name: "index_examples_on_user_id", using: :btree
 
   create_table "friend_requests", force: :cascade do |t|
-    t.integer  "requesting_user_id"
-    t.integer  "requested_user_id"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.integer  "user_id",           null: false
+    t.integer  "requested_user_id", null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
   end
 
-  create_table "friends", force: :cascade do |t|
-    t.integer  "requesting_user_id"
-    t.integer  "requested_user_id"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+  add_index "friend_requests", ["requested_user_id", "user_id"], name: "index_friend_requests_on_requested_user_id_and_user_id", unique: true, using: :btree
+  add_index "friend_requests", ["user_id"], name: "index_friend_requests_on_user_id", using: :btree
+
+  create_table "friendships", force: :cascade do |t|
+    t.integer  "user_id",           null: false
+    t.integer  "requested_user_id", null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
   end
+
+  add_index "friendships", ["requested_user_id", "user_id"], name: "index_friendships_on_requested_user_id_and_user_id", unique: true, using: :btree
+  add_index "friendships", ["user_id"], name: "index_friendships_on_user_id", using: :btree
 
   create_table "tags", force: :cascade do |t|
     t.string   "tag"
@@ -122,28 +131,31 @@ ActiveRecord::Schema.define(version: 20160815221643) do
     t.datetime "updated_at", null: false
   end
 
+  add_index "trips", ["city_id", "user_id"], name: "index_trips_on_city_id_and_user_id", using: :btree
   add_index "trips", ["city_id"], name: "index_trips_on_city_id", using: :btree
   add_index "trips", ["user_id"], name: "index_trips_on_user_id", using: :btree
 
   create_table "user_attractions", force: :cascade do |t|
-    t.integer  "attraction_id"
-    t.integer  "user_id"
+    t.integer  "attraction_id", null: false
+    t.integer  "user_id",       null: false
     t.boolean  "like"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
   end
 
+  add_index "user_attractions", ["attraction_id", "user_id"], name: "index_user_attractions_on_attraction_id_and_user_id", unique: true, using: :btree
   add_index "user_attractions", ["attraction_id"], name: "index_user_attractions_on_attraction_id", using: :btree
   add_index "user_attractions", ["user_id"], name: "index_user_attractions_on_user_id", using: :btree
 
   create_table "user_tags", force: :cascade do |t|
-    t.integer  "tag_id"
-    t.integer  "user_id"
+    t.integer  "tag_id",     null: false
+    t.integer  "user_id",    null: false
     t.boolean  "like"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  add_index "user_tags", ["tag_id", "user_id"], name: "index_user_tags_on_tag_id_and_user_id", unique: true, using: :btree
   add_index "user_tags", ["tag_id"], name: "index_user_tags_on_tag_id", using: :btree
   add_index "user_tags", ["user_id"], name: "index_user_tags_on_user_id", using: :btree
 
@@ -168,6 +180,8 @@ ActiveRecord::Schema.define(version: 20160815221643) do
   add_foreign_key "attraction_tags", "attractions"
   add_foreign_key "attraction_tags", "tags"
   add_foreign_key "examples", "users"
+  add_foreign_key "friend_requests", "users"
+  add_foreign_key "friendships", "users"
   add_foreign_key "trips", "cities"
   add_foreign_key "trips", "users"
   add_foreign_key "user_attractions", "attractions"
