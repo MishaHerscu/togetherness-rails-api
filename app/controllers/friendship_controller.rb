@@ -14,7 +14,6 @@ class FriendshipController < ProtectedController
                                     @current_user ||
                                     'requested_user = ?',
                                     @current_user
-
     render json: @friendships
   end
 
@@ -47,8 +46,7 @@ class FriendshipController < ProtectedController
   # THERE IS NO UPDATE
   # def update
   #   @friendship = Friendship.find(params[:id])
-  #
-  #   if @friendship.user_id == @current_user.id
+  #   if involved(@current_user, @friendship)
   #     if @friendship.update(friendship_params)
   #       head :no_content
   #     else
