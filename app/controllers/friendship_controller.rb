@@ -21,7 +21,7 @@ class FriendshipController < ProtectedController
   # GET /friendships/1
   # GET /friendships/1.json
   def show
-    render json: @Friendship if involved(@current_user, @Friendship)
+    render json: @friendship if involved(@current_user, @friendship)
   end
 
   # POST /friendships
