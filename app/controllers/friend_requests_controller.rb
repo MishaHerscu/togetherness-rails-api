@@ -3,17 +3,15 @@ class FriendRequestsController < ProtectedController
   before_action :set_friend_request, only: [:show, :update, :destroy]
 
   def involved(user, friend_request)
-    true if friend_request.requested_user == user || friend_request.user == user
+    true if friend_request.requested_user_id == user_id ||
+            friend_request.user_id == user_id
     false
   end
 
   # GET /friend_requests
   # GET /friend_requests.json
   def index
-    @friend_requests = FriendRequest.where 'user = ?',
-                                           @current_user ||
-                                           'requested_user = ?',
-                                           @current_user
+    @friend_requests = FriendRequest.where('user_id = ? or requested_user_id = ?', @current_user, @current_user)
     render json: @friend_requests
   end
 
@@ -26,8 +24,8 @@ class FriendRequestsController < ProtectedController
   # POST /friend_requests
   # POST /friend_requests.json
   def create
-    return false if friend_request_params.requested_user ==
-                    friend_request_params.user
+    return false if friend_request_params.requested_user_id ==
+                    friend_request_params.user_id
     begin
       @friend_request = FriendRequest.new(friend_request_params)
       @friend_request.user_id = @current_user.id

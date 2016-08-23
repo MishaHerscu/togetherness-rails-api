@@ -2,18 +2,16 @@
 class FriendshipController < ProtectedController
   before_action :set_friendship, only: [:show, :update, :destroy]
 
-  def involved(user, friendship)
-    true if friendship.requested_user == user || friendship.user == user
+  def involved(user, friend_request)
+    true if friend_request.requested_user_id == user_id ||
+            friend_request.user_id == user_id
     false
   end
 
   # GET /friendships
   # GET /friendships.json
   def index
-    @friendships = Friendship.where 'user = ?',
-                                    @current_user ||
-                                    'requested_user = ?',
-                                    @current_user
+    @friendships = Friendship.where('user_id = ? or requested_user_id = ?', @current_user, @current_user)
     render json: @friendships
   end
 
@@ -26,8 +24,8 @@ class FriendshipController < ProtectedController
   # POST /friendships
   # POST /friendships.json
   def create
-    return false if friendship_params.requested_user ==
-                    friendship_params.user
+    return false if friendship_params.requested_user_id ==
+                    friendship_params.user_id
     begin
       @friendship = Friendship.new(friendship_params)
     rescue ActiveRecord::RecordNotUnique
