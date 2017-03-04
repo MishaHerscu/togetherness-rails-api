@@ -95,7 +95,11 @@ class UserAttractionsController < ProtectedController
         user_id: @current_user.id,
         like: params[:like]
       }
-      UserTag.create(tag_params)
+      begin
+        UserTag.create(tag_params)
+      rescue
+        p 'duplicate user_tag creation attempt attempted and aborted'
+      end
     end
     refresh_user_events(@current_user)
   end
