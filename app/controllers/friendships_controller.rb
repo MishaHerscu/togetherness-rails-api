@@ -1,5 +1,5 @@
 #
-class FriendshipController < ProtectedController
+class FriendshipsController < ProtectedController
   before_action :set_friendship, only: [:show, :update, :destroy]
 
   def involved(user, friendship)

@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :friend_requests, except: [:new, :edit]
-  resources :friends, except: [:new, :edit, :update]
+  resources :friendships, except: [:new, :edit, :update]
   resources :attendances, except: [:new, :edit]
   resources :trips, except: [:new, :edit]
   resources :cities, except: [:new, :edit]
