@@ -18,7 +18,9 @@
 # require_relative 'modules/stopwords'
 #
 # # p 'env:', ENV['EVENTFUL_KEY']
-# p 'getting seed data'
+# p 'getting seed data...'
+#
+# saved_attraction_count = 0
 #
 # eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 #
@@ -27,7 +29,7 @@
 #
 # cities.each { |city| City.create(name: city) }
 #
-# def create_attraction(attraction)
+# def create_attraction(attraction, saved_attraction_count)
 #   attraction_params = {
 #     eventful_id: attraction['id'] || '',
 #     city_id: attraction['city_id'] || '',
@@ -63,19 +65,27 @@
 #   Attraction.create attraction_params
 #
 #   p 'API call and save success'
+#   if saved_attraction_count % 10 == 0
+#     p "Total Events Saved: #{saved_attraction_count}"
+#   end
 # end
 #
-# max = 40
-# cities.each do |city|
-#   # args documentation:
-#   # http://api.eventful.com/docs/events/search
-#   # .gsub(/\u2028/, '')
+# # args documentation:
+# # http://api.eventful.com/docs/events/search
+# # .gsub(/\u2028/, '')
 #
+# max = 100
+# page_size = 500
+# page_number = 1
+#
+# cities.each do |city|
+#
+#   redundant_returns_count = 0
 #   i = 0
-#   page_size = 10
-#   page_number = 1
 #
 #   while i < max
+#
+#     redundant_returns = true
 #
 #     begin
 #
@@ -91,7 +101,12 @@
 #       city_events['events']['event'].each do |event|
 #         city_id = City.find_by name: city
 #         event['city_id'] = city_id['id']
-#         create_attraction(event) unless Attraction.find_by eventful_id: event['id']
+#         unless Attraction.find_by eventful_id: event['id']
+#           create_attraction(event, saved_attraction_count)
+#           redundant_returns_count = 0
+#           redundant_returns = false
+#           saved_attraction_count += 1
+#         end
 #       end
 #
 #       i += 1
@@ -101,8 +116,13 @@
 #       p 'no exception'
 #     ensure
 #       p "#{city} API call #{i} complete"
-#     end
 #
+#       if redundant_returns
+#         redundant_returns_count += 1
+#         p "Requests with errors or no new results: #{redundant_returns_count}"
+#         i = max if redundant_returns_count > 5
+#       end
+#     end
 #   end
 # end
 #
@@ -129,9 +149,9 @@
 #   interest_keywords_count_hash[word] += 1
 # end
 #
-# p unique_interest_keywords.length
-# p filtered_interest_keywords.length
-# p interest_keywords.length
+# p "Unique Interest Keywords Count: #{unique_interest_keywords.length}"
+# p "Filtered Interest Keywords Count: #{filtered_interest_keywords.length}"
+# p "Interest Keywords Count: #{interest_keywords.length}"
 #
 # #
 # # Save tags
@@ -149,8 +169,7 @@
 #
 # average_usage = interest_keywords_count_hash.values.inject(0, :+) /
 #                 interest_keywords_count_hash.values.length.to_f
-# p 'average_usage:'
-# p average_usage
+# p "average_usage: #{average_usage}"
 #
 # create_tag(interest_keywords_count_hash, average_usage)
 #
