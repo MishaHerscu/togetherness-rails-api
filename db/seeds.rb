@@ -65,7 +65,7 @@
 #   p 'API call and save success'
 # end
 #
-# max = 15
+# max = 40
 # cities.each do |city|
 #   # args documentation:
 #   # http://api.eventful.com/docs/events/search
