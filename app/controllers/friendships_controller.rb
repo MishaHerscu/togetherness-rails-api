@@ -68,6 +68,6 @@ class FriendshipsController < ProtectedController
   end
 
   def friendship_params
-    params.require(:friendship).permit(:user, :requested_user)
+    params.require(:friendship).permit(:user_id, :requested_user_id)
   end
 end
