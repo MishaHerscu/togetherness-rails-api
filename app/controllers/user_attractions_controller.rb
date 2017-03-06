@@ -72,7 +72,7 @@ class UserAttractionsController < ProtectedController
     end
     final_string = ''
     user_words.uniq.each do |word|
-      final_string << word << ' '
+      final_string = final_string + ' ' + word
     end
     @current_user[:keywords_string] = final_string
     @current_user.save
@@ -84,7 +84,7 @@ class UserAttractionsController < ProtectedController
     end
     final_string = ''
     user_words.uniq.each do |word|
-      final_string << word << ' '
+      final_string = final_string + ' ' + word
     end
     @current_user[:keywords_string] = final_string
     @current_user.save
