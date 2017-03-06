@@ -1,220 +1,220 @@
-# Uncomment this file to use it as regular seeds.rb file
-
-# This file should contain all the record creation needed to seed the database
-# with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db
-# with db:setup).
-
-# Examples:
+# # Uncomment this file to use it as regular seeds.rb file
 #
-#   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
-#   Mayor.create(name: 'Emanuel', city: cities.first)
-
+# # This file should contain all the record creation needed to seed the database
+# # with its default values.
+# # The data can then be loaded with the rake db:seed (or created alongside the db
+# # with db:setup).
 #
-# GET EVENT DATA FROM EVENTFUL
+# # Examples:
+# #
+# #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
+# #   Mayor.create(name: 'Emanuel', city: cities.first)
 #
-
-require 'eventful/api'
-require_relative 'modules/stopwords'
-
-# p 'env:', ENV['EVENTFUL_KEY']
-p 'getting seed data...'
-
-saved_attraction_count = 0
-
-eventful = Eventful::API.new ENV['EVENTFUL_KEY']
-
-# cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
-#           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
-
-cities = ['New York']
-
-cities.each { |city| City.create(name: city) }
-
-def create_attraction(attraction, saved_attraction_count)
-  attraction_params = {
-    eventful_id: attraction['id'] || '',
-    city_id: attraction['city_id'] || '',
-    city_name: attraction['city_name'] || '',
-    country_name: attraction['country_name'] || '',
-    title: attraction['title'] || '',
-    description: attraction['description'] || '',
-    owner: attraction['owner'] || '',
-    db_start_time: attraction['start_time'] || '',
-    db_stop_time: attraction['stop_time'] || '',
-    event_date: attraction['start_time'].to_date || '',
-    event_time: attraction['start_time'].to_s.slice(11, 8) || '',
-    event_time_zone: attraction['start_time'].to_s.slice(-5, 5) || '',
-    all_day: attraction['all_day'] || '',
-    venue_id: attraction['venue_id'] || '',
-    venue_name: attraction['venue_name'] || '',
-    venue_address: attraction['venue_address'] || '',
-    postal_code: attraction['postal_code'] || '',
-    venue_url: attraction['venue_url'] || '',
-    geocode_type: attraction['geocode_type'] || '',
-    latitude: attraction['latitude'] || '',
-    longitude: attraction['longitude'] || '',
-    image_information: attraction['image'] || ''
-  }
-
-  if attraction['image'] &&
-     attraction['image']['medium'] &&
-     attraction['image']['medium']['url']
-    image_url = attraction['image']['medium']['url']
-    attraction_params['medium_image_url'] = image_url
-  end
-
-  city = attraction['city_name'] || ''
-  title = attraction['title'] || ''
-  venue = attraction['venue_name'] || ''
-  desc = attraction['description'] || ''
-  attraction_string = city + ' ' + title + ' ' + venue + ' ' + desc
-  norm_string = attraction_string.downcase.gsub!(/[^a-z]/, ' ')
-  word_arr = norm_string.split(' ')
-  filtered_array = word_arr.select { |word| !Stopwords.stopwords.include? word }
-  final_string = ''
-  filtered_array.uniq.each do |word|
-    final_string = final_string + ' ' + word
-  end
-  attraction_params['keywords_string'] = final_string
-
-  Attraction.create attraction_params
-
-  p 'API call and save success'
-  if saved_attraction_count % 10 == 0
-    p "Total Events Saved: #{saved_attraction_count}"
-  end
-end
-
-# args documentation:
-# http://api.eventful.com/docs/events/search
-# .gsub(/\u2028/, '')
-
-max = 100
-page_size = 1000
-page_number = 2
-
-cities.each do |city|
-
-  redundant_returns_count = 0
-  i = 0
-
-  while i < max
-
-    redundant_returns = true
-
-    begin
-
-      city_args = {
-        date: 'Future',
-        where: city,
-        page_size: page_size,
-        page_number: page_number
-      }
-
-      city_events = eventful.call 'events/search', city_args
-
-      city_events['events']['event'].each do |event|
-        city_id = City.find_by name: city
-        event['city_id'] = city_id['id']
-        unless Attraction.find_by eventful_id: event['id']
-          create_attraction(event, saved_attraction_count)
-          redundant_returns_count = 0
-          redundant_returns = false
-          saved_attraction_count += 1
-        end
-      end
-
-      i += 1
-    rescue StandardError => exception
-      p exception
-    else
-      p 'no exception'
-    ensure
-      p "#{city} API call #{i} complete"
-
-      if redundant_returns
-        redundant_returns_count += 1
-        p "Requests with errors or no new results: #{redundant_returns_count}"
-        i = max if redundant_returns_count > 5
-      end
-    end
-  end
-end
-
+# #
+# # GET EVENT DATA FROM EVENTFUL
+# #
 #
-# CAPTURE KEYWORDS FROM EVENTS
+# require 'eventful/api'
+# require_relative 'modules/stopwords'
 #
-
-all_attractions = Attraction.all
-interest_keywords = []
-
-all_attractions.each do |attraction|
-  city = attraction['city_name'] || ''
-  title = attraction['title'] || ''
-  venue = attraction['venue_name'] || ''
-  desc = attraction['description'] || ''
-  attraction_words_string = city + ' ' + title + ' ' + venue + ' ' + desc
-  interest_keywords += attraction_words_string.downcase.gsub!(/[^0-9A-Za-z]/, ' ').split(' ')
-end
-
-filtered_interest_keywords = interest_keywords.select { |word| !Stopwords.stopwords.include? word }
-unique_interest_keywords = filtered_interest_keywords.uniq
-interest_keywords_count_hash = Hash.new 0
-filtered_interest_keywords.each do |word|
-  interest_keywords_count_hash[word] += 1
-end
-
-p "Unique Interest Keywords Count: #{unique_interest_keywords.length}"
-p "Filtered Interest Keywords Count: #{filtered_interest_keywords.length}"
-p "Interest Keywords Count: #{interest_keywords.length}"
-
+# # p 'env:', ENV['EVENTFUL_KEY']
+# p 'getting seed data...'
 #
-# Save tags
+# saved_attraction_count = 0
 #
-
-def create_tag(keyword_hash, avg_usage)
-  keyword_hash.keys.each do |key|
-    Tag.create(
-      tag: key,
-      usages: keyword_hash[key],
-      relative_usage: ((100 * keyword_hash[key]) / avg_usage).floor
-    )
-  end
-end
-
-average_usage = interest_keywords_count_hash.values.inject(0, :+) /
-                interest_keywords_count_hash.values.length.to_f
-p "average_usage: #{average_usage}"
-
-create_tag(interest_keywords_count_hash, average_usage)
-
+# eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 #
-# Create Join Table between events and tags
+# # cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
+# #           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
 #
-
-all_attractions.each do |attraction|
-  city = attraction['city_name'] || ''
-  title = attraction['title'] || ''
-  venue = attraction['venue_name'] || ''
-  desc = attraction['description'] || ''
-  attraction_words_string = city + ' ' + title + ' ' + venue + ' ' + desc
-  attraction_words_array = attraction_words_string.downcase.gsub!(/[^0-9A-Za-z]/, ' ').split(' ')
-  filtered_attraction_words_array = attraction_words_array.select { |word| !Stopwords.stopwords.include? word }
-  unique_filtered_attraction_words_array = filtered_attraction_words_array.uniq
-  unique_filtered_attraction_words_array.each do |tag_word|
-    begin
-      AttractionTag.create(
-        tag: Tag.find_by(tag: tag_word),
-        attraction: Attraction.find_by(title: attraction[:title])
-      )
-    rescue ActiveRecord::RecordNotUnique
-      p 'attempted duplicate record creation in seeds.rb file'
-    end
-  end
-end
-
-# save data to seed_data csv after deleting the old one
-# https://www.postgresql.org/docs/9.1/static/backup-dump.html
-File.delete('seed_data.dump') if File.exist?('seed_data.dump')
-system('pg_dump -Fc togetherness_development > seed_data.dump')
+# cities = ['New York']
+#
+# cities.each { |city| City.create(name: city) }
+#
+# def create_attraction(attraction, saved_attraction_count)
+#   attraction_params = {
+#     eventful_id: attraction['id'] || '',
+#     city_id: attraction['city_id'] || '',
+#     city_name: attraction['city_name'] || '',
+#     country_name: attraction['country_name'] || '',
+#     title: attraction['title'] || '',
+#     description: attraction['description'] || '',
+#     owner: attraction['owner'] || '',
+#     db_start_time: attraction['start_time'] || '',
+#     db_stop_time: attraction['stop_time'] || '',
+#     event_date: attraction['start_time'].to_date || '',
+#     event_time: attraction['start_time'].to_s.slice(11, 8) || '',
+#     event_time_zone: attraction['start_time'].to_s.slice(-5, 5) || '',
+#     all_day: attraction['all_day'] || '',
+#     venue_id: attraction['venue_id'] || '',
+#     venue_name: attraction['venue_name'] || '',
+#     venue_address: attraction['venue_address'] || '',
+#     postal_code: attraction['postal_code'] || '',
+#     venue_url: attraction['venue_url'] || '',
+#     geocode_type: attraction['geocode_type'] || '',
+#     latitude: attraction['latitude'] || '',
+#     longitude: attraction['longitude'] || '',
+#     image_information: attraction['image'] || ''
+#   }
+#
+#   if attraction['image'] &&
+#      attraction['image']['medium'] &&
+#      attraction['image']['medium']['url']
+#     image_url = attraction['image']['medium']['url']
+#     attraction_params['medium_image_url'] = image_url
+#   end
+#
+#   city = attraction['city_name'] || ''
+#   title = attraction['title'] || ''
+#   venue = attraction['venue_name'] || ''
+#   desc = attraction['description'] || ''
+#   attraction_string = city + ' ' + title + ' ' + venue + ' ' + desc
+#   norm_string = attraction_string.downcase.gsub!(/[^a-z]/, ' ')
+#   word_arr = norm_string.split(' ')
+#   filtered_array = word_arr.select { |word| !Stopwords.stopwords.include? word }
+#   final_string = ''
+#   filtered_array.uniq.each do |word|
+#     final_string = final_string + ' ' + word
+#   end
+#   attraction_params['keywords_string'] = final_string
+#
+#   Attraction.create attraction_params
+#
+#   p 'API call and save success'
+#   if saved_attraction_count % 10 == 0
+#     p "Total Events Saved: #{saved_attraction_count}"
+#   end
+# end
+#
+# # args documentation:
+# # http://api.eventful.com/docs/events/search
+# # .gsub(/\u2028/, '')
+#
+# max = 100
+# page_size = 1000
+# page_number = 2
+#
+# cities.each do |city|
+#
+#   redundant_returns_count = 0
+#   i = 0
+#
+#   while i < max
+#
+#     redundant_returns = true
+#
+#     begin
+#
+#       city_args = {
+#         date: 'Future',
+#         where: city,
+#         page_size: page_size,
+#         page_number: page_number
+#       }
+#
+#       city_events = eventful.call 'events/search', city_args
+#
+#       city_events['events']['event'].each do |event|
+#         city_id = City.find_by name: city
+#         event['city_id'] = city_id['id']
+#         unless Attraction.find_by eventful_id: event['id']
+#           create_attraction(event, saved_attraction_count)
+#           redundant_returns_count = 0
+#           redundant_returns = false
+#           saved_attraction_count += 1
+#         end
+#       end
+#
+#       i += 1
+#     rescue StandardError => exception
+#       p exception
+#     else
+#       p 'no exception'
+#     ensure
+#       p "#{city} API call #{i} complete"
+#
+#       if redundant_returns
+#         redundant_returns_count += 1
+#         p "Requests with errors or no new results: #{redundant_returns_count}"
+#         i = max if redundant_returns_count > 5
+#       end
+#     end
+#   end
+# end
+#
+# #
+# # CAPTURE KEYWORDS FROM EVENTS
+# #
+#
+# all_attractions = Attraction.all
+# interest_keywords = []
+#
+# all_attractions.each do |attraction|
+#   city = attraction['city_name'] || ''
+#   title = attraction['title'] || ''
+#   venue = attraction['venue_name'] || ''
+#   desc = attraction['description'] || ''
+#   attraction_words_string = city + ' ' + title + ' ' + venue + ' ' + desc
+#   interest_keywords += attraction_words_string.downcase.gsub!(/[^0-9A-Za-z]/, ' ').split(' ')
+# end
+#
+# filtered_interest_keywords = interest_keywords.select { |word| !Stopwords.stopwords.include? word }
+# unique_interest_keywords = filtered_interest_keywords.uniq
+# interest_keywords_count_hash = Hash.new 0
+# filtered_interest_keywords.each do |word|
+#   interest_keywords_count_hash[word] += 1
+# end
+#
+# p "Unique Interest Keywords Count: #{unique_interest_keywords.length}"
+# p "Filtered Interest Keywords Count: #{filtered_interest_keywords.length}"
+# p "Interest Keywords Count: #{interest_keywords.length}"
+#
+# #
+# # Save tags
+# #
+#
+# def create_tag(keyword_hash, avg_usage)
+#   keyword_hash.keys.each do |key|
+#     Tag.create(
+#       tag: key,
+#       usages: keyword_hash[key],
+#       relative_usage: ((100 * keyword_hash[key]) / avg_usage).floor
+#     )
+#   end
+# end
+#
+# average_usage = interest_keywords_count_hash.values.inject(0, :+) /
+#                 interest_keywords_count_hash.values.length.to_f
+# p "average_usage: #{average_usage}"
+#
+# create_tag(interest_keywords_count_hash, average_usage)
+#
+# #
+# # Create Join Table between events and tags
+# #
+#
+# all_attractions.each do |attraction|
+#   city = attraction['city_name'] || ''
+#   title = attraction['title'] || ''
+#   venue = attraction['venue_name'] || ''
+#   desc = attraction['description'] || ''
+#   attraction_words_string = city + ' ' + title + ' ' + venue + ' ' + desc
+#   attraction_words_array = attraction_words_string.downcase.gsub!(/[^0-9A-Za-z]/, ' ').split(' ')
+#   filtered_attraction_words_array = attraction_words_array.select { |word| !Stopwords.stopwords.include? word }
+#   unique_filtered_attraction_words_array = filtered_attraction_words_array.uniq
+#   unique_filtered_attraction_words_array.each do |tag_word|
+#     begin
+#       AttractionTag.create(
+#         tag: Tag.find_by(tag: tag_word),
+#         attraction: Attraction.find_by(title: attraction[:title])
+#       )
+#     rescue ActiveRecord::RecordNotUnique
+#       p 'attempted duplicate record creation in seeds.rb file'
+#     end
+#   end
+# end
+#
+# # save data to seed_data csv after deleting the old one
+# # https://www.postgresql.org/docs/9.1/static/backup-dump.html
+# File.delete('seed_data.dump') if File.exist?('seed_data.dump')
+# system('pg_dump -Fc togetherness_development > seed_data.dump')
