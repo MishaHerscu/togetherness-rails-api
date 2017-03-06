@@ -6,7 +6,8 @@ class AttractionsController < ProtectedController
   # GET /attractions
   # GET /attractions.json
   def index
-    @attractions = Attraction.all
+    @attractions = Attraction.order('RANDOM()').all.limit(50)
+    p @attractions
 
     render json: @attractions
   end
