@@ -57,7 +57,17 @@ class UsersController < ProtectedController
   end
 
   def update
-    head :bad_request
+    user_credentials = user_creds
+    p @current_user.email
+    p user_credentials[:email]
+    return false if @current_user.email != user_credentials[:email]
+
+    if @current_user.update(user_creds)
+      head :no_content
+      refresh_user_events(@current_user)
+    else
+      render json: @trip.errors, status: :unprocessable_entity
+    end
   end
 
   def destroy
@@ -70,7 +80,7 @@ class UsersController < ProtectedController
   def user_creds
     params.require(:credentials)
           .permit(:email, :password, :password_confirmation, :givenname,
-                  :surname)
+                  :surname, :keywords_string)
   end
 
   def pw_creds

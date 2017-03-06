@@ -19,53 +19,6 @@ class UserAttractionsController < ProtectedController
     end
   end
 
-  def overlap(tag_array_1, tag_array_2)
-    result = 0
-    tag_array_1.each do |tag|
-      result += 1 if tag_array_2.include?(tag)
-    end
-    result / tag_array_1.length.to_f
-  end
-
-  def correlate_arrays(tag_array_1, tag_array_2)
-    filtered_array_1 = tag_array_1.uniq.compact
-    filtered_array_2 = tag_array_2.uniq.compact
-    first_comparison = overlap(filtered_array_1, filtered_array_2)
-    second_comparison = overlap(filtered_array_2, filtered_array_1)
-    (first_comparison + second_comparison) / 2.to_f
-  end
-
-  def get_attraction_suggestions(correlation_cutoff, current_user_words)
-    attraction_suggestions = []
-    Attraction.all.each do |attraction|
-      attraction_words = attraction[:keywords_string].split(' ')
-      average_correlation = correlate_arrays(attraction_words,
-                                             current_user_words)
-      if average_correlation > correlation_cutoff
-        attraction_suggestions << attraction
-      end
-    end
-  end
-
-  def create_new_attraction_suggestions(attraction_suggestions)
-    attraction_suggestions.each do |attraction|
-      attraction_suggestion_params = {
-        user_id: @current_user[:id],
-        attraction_id: attraction[:id]
-      }
-      AttractionSuggestion.create(attraction_suggestion_params)
-    end
-  end
-
-  def refresh_user_events(user)
-    correlation_cutoff = 0.25
-    AttractionSuggestion.where(user_id: user[:id]).delete_all
-    current_user_words = @current_user[:keywords_string].split(' ')
-    attraction_suggestions = get_attraction_suggestions(correlation_cutoff,
-                                                        current_user_words)
-    create_new_attraction_suggestions(attraction_suggestions)
-  end
-
   def add_user_words(word_array, user_words)
     word_array.each do |word|
       user_words << word
@@ -74,7 +27,7 @@ class UserAttractionsController < ProtectedController
     user_words.uniq.each do |word|
       final_string = final_string + ' ' + word
     end
-    @current_user[:keywords_string] = final_string
+    @current_user[:keywords_string] = final_string.strip
     @current_user.save
   end
 
@@ -86,7 +39,7 @@ class UserAttractionsController < ProtectedController
     user_words.uniq.each do |word|
       final_string = final_string + ' ' + word
     end
-    @current_user[:keywords_string] = final_string
+    @current_user[:keywords_string] = final_string.strip
     @current_user.save
   end
 
