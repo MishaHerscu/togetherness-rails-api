@@ -24,8 +24,10 @@
 #
 # eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 #
-# cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
-#           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
+# # cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
+# #           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
+#
+# cities = ['New York']
 #
 # cities.each { |city| City.create(name: city) }
 #
@@ -62,6 +64,21 @@
 #     attraction_params['medium_image_url'] = image_url
 #   end
 #
+#   city = attraction['city_name'] || ''
+#   title = attraction['title'] || ''
+#   venue = attraction['venue_name'] || ''
+#   desc = attraction['description'] || ''
+#   attraction_string = city << ' ' << title << ' ' << venue << ' ' << desc
+#   norm_string = attraction_string.downcase.gsub!(/[^a-z]/, ' ')
+#   word_arr = norm_string.split(' ')
+#   filtered_array = word_arr.select { |word| !Stopwords.stopwords.include? word }
+#
+#   final_string = ''
+#   filtered_array.uniq.each do |word|
+#     final_string << word << ' '
+#   end
+#   attraction_params['keywords_string'] = final_string
+#
 #   Attraction.create attraction_params
 #
 #   p 'API call and save success'
@@ -75,8 +92,8 @@
 # # .gsub(/\u2028/, '')
 #
 # max = 100
-# page_size = 500
-# page_number = 1
+# page_size = 1000
+# page_number = 2
 #
 # cities.each do |city|
 #

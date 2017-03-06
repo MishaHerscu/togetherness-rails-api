@@ -1,6 +1,6 @@
 #
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :admin, :givenname, :surname,
+  attributes :id, :email, :admin, :givenname, :surname, :keywords_string,
              :trips, :attendances, :user_tags, :friend_requests, :friendships,
              :attraction_suggestions
 

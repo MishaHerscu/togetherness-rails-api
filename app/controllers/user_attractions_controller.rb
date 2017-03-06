@@ -19,11 +19,6 @@ class UserAttractionsController < ProtectedController
     end
   end
 
-  # def filter_to_key_words(array)
-  #   key_word_tags = Tag.where('relative_usage < ?', 70)
-  #   array.keep_if { |tag| key_word_tags.include?(tag) }
-  # end
-
   def overlap(tag_array_1, tag_array_2)
     result = 0
     tag_array_1.each do |tag|
@@ -33,73 +28,85 @@ class UserAttractionsController < ProtectedController
   end
 
   def correlate_arrays(tag_array_1, tag_array_2)
-    # filtered_array_1 = filter_to_key_words(tag_array_1.uniq.compact)
-    # filtered_array_2 = filter_to_key_words(tag_array_2.uniq.compact)
-    filtered_array_1 = tag_array_1.uniq.compact # temporary
-    filtered_array_2 = tag_array_2.uniq.compact # temporary
+    filtered_array_1 = tag_array_1.uniq.compact
+    filtered_array_2 = tag_array_2.uniq.compact
     first_comparison = overlap(filtered_array_1, filtered_array_2)
     second_comparison = overlap(filtered_array_2, filtered_array_1)
     (first_comparison + second_comparison) / 2.to_f
   end
 
-  def refresh_user_events(user)
-    # Clear old attraction suggestions
-    AttractionSuggestion.where(user_id: user[:id]).delete_all
-
-    #
-    # get all AttractionSuggestions attractions
-    #
-
-    # first step: get current user tags
-    current_user_tags = UserTag.select('tag_id').where(
-      user_id: user[:id],
-      like: true
-    )
-    current_user_tag_ids = []
-    correlation_cutoff = 0.2
-    current_user_tags.each do |tag|
-      current_user_tag_ids << tag[:tag_id]
-    end
-
-    # second step: get attractions that match
+  def get_attraction_suggestions(correlation_cutoff, current_user_words)
     attraction_suggestions = []
     Attraction.all.each do |attraction|
-      attraction_tags = AttractionTag.where(attraction_id: attraction[:id])
-      attraction_tag_ids = []
-      attraction_tags.each do |attraction_tag|
-        attraction_tag_ids << attraction_tag[:tag_id]
-      end
-      average_correlation = correlate_arrays(current_user_tag_ids,
-                                             attraction_tag_ids)
+      attraction_words = attraction[:keywords_string].split(' ')
+      average_correlation = correlate_arrays(attraction_words,
+                                             current_user_words)
       if average_correlation > correlation_cutoff
         attraction_suggestions << attraction
       end
     end
+  end
 
-    # make new AttractionSuggestions
+  def create_new_attraction_suggestions(attraction_suggestions)
     attraction_suggestions.each do |attraction|
       attraction_suggestion_params = {
-        user_id: user[:id],
+        user_id: @current_user[:id],
         attraction_id: attraction[:id]
       }
       AttractionSuggestion.create(attraction_suggestion_params)
     end
   end
 
-  def update_user_tags(params)
-    attraction_tags = AttractionTag.where 'attraction_id = ?',
-                                          params[:attraction_id]
-    attraction_tags.each do |attraction_tag|
-      tag_params = {
-        tag_id: attraction_tag[:tag_id],
-        user_id: @current_user.id,
-        like: params[:like]
-      }
-      begin
-        UserTag.create(tag_params)
-      rescue
-        p 'duplicate user_tag creation attempt attempted and aborted'
-      end
+  def refresh_user_events(user)
+    correlation_cutoff = 0.25
+    AttractionSuggestion.where(user_id: user[:id]).delete_all
+    current_user_words = @current_user[:keywords_string].split(' ')
+    attraction_suggestions = get_attraction_suggestions(correlation_cutoff,
+                                                        current_user_words)
+    create_new_attraction_suggestions(attraction_suggestions)
+  end
+
+  def add_user_words(word_array, user_words)
+    word_array.each do |word|
+      user_words << word
+    end
+    final_string = ''
+    user_words.uniq.each do |word|
+      final_string << word << ' '
+    end
+    @current_user[:keywords_string] = final_string
+    @current_user.save
+  end
+
+  def remove_user_words(word_array, user_words)
+    word_array.each do |word|
+      user_words.delete(word)
+    end
+    final_string = ''
+    user_words.uniq.each do |word|
+      final_string << word << ' '
+    end
+    @current_user[:keywords_string] = final_string
+    @current_user.save
+  end
+
+  def split_user_word_array(user)
+    begin
+      user_words = user[:keywords_string].split(' ')
+    rescue
+      user_words = []
+    end
+    user_words
+  end
+
+  def update_user_string(params)
+    liked_attraction = Attraction.find(params[:attraction_id])
+    attraction_keywords = liked_attraction[:keywords_string].split(' ')
+    user_words = split_user_word_array(@current_user)
+    if params[:like]
+      add_user_words(attraction_keywords, user_words)
+    else
+      remove_user_words(attraction_keywords, user_words)
     end
     refresh_user_events(@current_user)
   end
@@ -113,8 +120,9 @@ class UserAttractionsController < ProtectedController
       p 'attempted duplicate record creation'
     end
     if @user_attraction.save
-      update_user_tags(user_attraction_params)
-      render json: @user_attraction, status: :created, location: @user_attraction
+      update_user_string(user_attraction_params)
+      render json: @user_attraction, status: :created,
+             location: @user_attraction
     else
       render json: @user_attraction.errors, status: :unprocessable_entity
     end

@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(version: 20160815221643) do
     t.string   "country_name"
     t.string   "title"
     t.string   "description"
+    t.string   "keywords_string"
     t.string   "owner"
     t.datetime "db_start_time"
     t.datetime "db_stop_time"
@@ -166,6 +167,7 @@ ActiveRecord::Schema.define(version: 20160815221643) do
     t.boolean  "admin",           null: false
     t.string   "givenname",       null: false
     t.string   "surname",         null: false
+    t.string   "keywords_string"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end

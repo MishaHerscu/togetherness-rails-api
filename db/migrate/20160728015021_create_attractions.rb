@@ -8,6 +8,7 @@ class CreateAttractions < ActiveRecord::Migration
       t.string :country_name
       t.string :title
       t.string :description
+      t.string :keywords_string
       t.string :owner
       t.datetime :db_start_time
       t.datetime :db_stop_time

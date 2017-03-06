@@ -8,6 +8,7 @@ class CreateUsers < ActiveRecord::Migration
       t.boolean :admin, null: false
       t.string :givenname, null: false
       t.string :surname, null: false
+      t.string :keywords_string
 
       # t.references :friend
       # t.references :friendrequest
