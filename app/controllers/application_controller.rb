@@ -89,6 +89,8 @@ class ApplicationController < ActionController::API
     correlation_cutoff = 0.25
     AttractionSuggestion.where(user_id: user[:id]).delete_all
     current_user_words = @current_user[:keywords_string].split(' ')
+    current_user_words.keep_if { |word| word != '' && word != ' ' }
+    return false if current_user_words.empty?
     attraction_suggestions = get_attraction_suggestions(correlation_cutoff,
                                                         current_user_words)
     create_new_attraction_suggestions(attraction_suggestions)
