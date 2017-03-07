@@ -73,9 +73,11 @@ class ApplicationController < ActionController::API
         attraction_suggestions << attraction
       end
     end
+    attraction_suggestions
   end
 
   def create_new_attraction_suggestions(attraction_suggestions)
+    p 'attraction suggestions count: ', attraction_suggestions.length
     attraction_suggestions.each do |attraction|
       attraction_suggestion_params = {
         user_id: @current_user[:id],
@@ -86,7 +88,7 @@ class ApplicationController < ActionController::API
   end
 
   def refresh_user_events(user)
-    correlation_cutoff = 0.51
+    correlation_cutoff = 0.20
     AttractionSuggestion.where(user_id: user[:id]).delete_all
     current_user_words = @current_user[:keywords_string].split(' ')
     current_user_words.keep_if { |word| word != '' && word != ' ' }

@@ -58,8 +58,6 @@ class UsersController < ProtectedController
 
   def update
     user_credentials = user_creds
-    p @current_user.email
-    p user_credentials[:email]
     return false if @current_user.email != user_credentials[:email]
 
     if @current_user.update(user_creds)
