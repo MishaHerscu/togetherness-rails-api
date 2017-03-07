@@ -86,7 +86,7 @@ class ApplicationController < ActionController::API
   end
 
   def refresh_user_events(user)
-    correlation_cutoff = 0.25
+    correlation_cutoff = 0.51
     AttractionSuggestion.where(user_id: user[:id]).delete_all
     current_user_words = @current_user[:keywords_string].split(' ')
     current_user_words.keep_if { |word| word != '' && word != ' ' }
