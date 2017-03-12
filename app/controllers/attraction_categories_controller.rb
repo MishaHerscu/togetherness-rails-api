@@ -5,8 +5,7 @@ class AttractionCategoriesController < ProtectedController
   # GET /attraction_categories
   # GET /attraction_categories.json
   def index
-    @attraction_categories = AttractionCategory.where 'user_id = ?',
-                                                      @current_user.id
+    @attraction_categories = AttractionCategory.all
 
     render json: @attraction_categories
   end
@@ -14,7 +13,6 @@ class AttractionCategoriesController < ProtectedController
   # GET /attraction_categories/1
   # GET /attraction_categories/1.json
   def show
-    return false if @attraction_category.user_id != @current_user.id
     render json: @attraction_category
   end
 
@@ -47,7 +45,7 @@ class AttractionCategoriesController < ProtectedController
   # DELETE /attraction_categories/1
   # DELETE /attraction_categories/1.json
   def destroy
-    return false if @trip.user_id != @current_user.id
+    return false if @current_user.admin == false
     @attraction_category.destroy
 
     head :no_content
