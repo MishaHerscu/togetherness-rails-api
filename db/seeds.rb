@@ -24,16 +24,64 @@
 #
 # eventful = Eventful::API.new ENV['EVENTFUL_KEY']
 #
-# # cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
-# #           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
+# cities = ['Chicago', 'Boston', 'New York', 'San Francisco', 'Los Angeles',
+#           'Las Vegas', 'Austin', 'Seattle', 'Denver', 'Nashville']
 #
-# cities = ['New York']
+# # cities = ['New York']
 #
 # cities.each { |city| City.create(name: city) }
+#
+# def add_categories(attraction)
+#   attraction['categories'].each do |category_list|
+#     category_list[1].each do |category|
+#       new_category = { title: category['id'], label: category['name'] }
+#       next if Category.find_by title: new_category['id']
+#       Category.create new_category
+#     end
+#   end
+# end
+#
+# def add_attraction_categories(attraction_hash, attraction)
+#   attraction_hash['categories'].each do |category_list|
+#     category_list[1].each do |a_cat|
+#       cat = Category.find_by title: a_cat['id']
+#       next unless cat
+#       new_ac = { attraction_id: attraction[:id], category_id: cat[:id] }
+#       AttractionCategory.create new_ac
+#     end
+#   end
+# end
+#
+# def define_img_url(attraction)
+#   if attraction['image'] &&
+#      attraction['image']['medium'] &&
+#      attraction['image']['medium']['url']
+#     return attraction['image']['medium']['url']
+#   else
+#     return ''
+#   end
+# end
+#
+# def define_keyword_string(attraction)
+#   city = attraction['city_name'] || ''
+#   title = attraction['title'] || ''
+#   venue = attraction['venue_name'] || ''
+#   desc = attraction['description'] || ''
+#   attraction_string = city + ' ' + title + ' ' + venue + ' ' + desc
+#   norm_string = attraction_string.downcase.gsub!(/[^a-z]/, ' ')
+#   word_arr = norm_string.split(' ')
+#   filtered_array = word_arr.select { |word| !Stopwords.stopwords.include? word }
+#   final_string = ''
+#   filtered_array.uniq.each do |word|
+#     final_string = final_string + ' ' + word
+#   end
+#   final_string
+# end
 #
 # def create_attraction(attraction, saved_attraction_count)
 #   attraction_params = {
 #     eventful_id: attraction['id'] || '',
+#     categories_string: attraction['categories'] || '',
 #     city_id: attraction['city_id'] || '',
 #     city_name: attraction['city_name'] || '',
 #     country_name: attraction['country_name'] || '',
@@ -54,31 +102,14 @@
 #     geocode_type: attraction['geocode_type'] || '',
 #     latitude: attraction['latitude'] || '',
 #     longitude: attraction['longitude'] || '',
-#     image_information: attraction['image'] || ''
+#     image_information: attraction['image'] || '',
+#     medium_image_url: define_img_url(attraction),
+#     keywords_string: define_keyword_string(attraction)
 #   }
 #
-#   if attraction['image'] &&
-#      attraction['image']['medium'] &&
-#      attraction['image']['medium']['url']
-#     image_url = attraction['image']['medium']['url']
-#     attraction_params['medium_image_url'] = image_url
-#   end
-#
-#   city = attraction['city_name'] || ''
-#   title = attraction['title'] || ''
-#   venue = attraction['venue_name'] || ''
-#   desc = attraction['description'] || ''
-#   attraction_string = city + ' ' + title + ' ' + venue + ' ' + desc
-#   norm_string = attraction_string.downcase.gsub!(/[^a-z]/, ' ')
-#   word_arr = norm_string.split(' ')
-#   filtered_array = word_arr.select { |word| !Stopwords.stopwords.include? word }
-#   final_string = ''
-#   filtered_array.uniq.each do |word|
-#     final_string = final_string + ' ' + word
-#   end
-#   attraction_params['keywords_string'] = final_string
-#
+#   add_categories(attraction)
 #   Attraction.create attraction_params
+#   add_attraction_categories(attraction, Attraction.last)
 #
 #   p 'API call and save success'
 #   if saved_attraction_count % 10 == 0
@@ -90,12 +121,11 @@
 # # http://api.eventful.com/docs/events/search
 # # .gsub(/\u2028/, '')
 #
-# max = 100
-# page_size = 1000
+# max = 100 # Run with 100 here
+# page_size = 1000 # Run with 1000 here
 # page_number = 2
 #
 # cities.each do |city|
-#
 #   redundant_returns_count = 0
 #   i = 0
 #
@@ -109,7 +139,8 @@
 #         date: 'Future',
 #         where: city,
 #         page_size: page_size,
-#         page_number: page_number
+#         page_number: page_number,
+#         include: 'categories, subcategories, popularity, tickets, price, links'
 #       }
 #
 #       city_events = eventful.call 'events/search', city_args
@@ -117,12 +148,11 @@
 #       city_events['events']['event'].each do |event|
 #         city_id = City.find_by name: city
 #         event['city_id'] = city_id['id']
-#         unless Attraction.find_by eventful_id: event['id']
-#           create_attraction(event, saved_attraction_count)
-#           redundant_returns_count = 0
-#           redundant_returns = false
-#           saved_attraction_count += 1
-#         end
+#         next if Attraction.find_by eventful_id: event['id']
+#         create_attraction(event, saved_attraction_count)
+#         redundant_returns_count = 0
+#         redundant_returns = false
+#         saved_attraction_count += 1
 #       end
 #
 #       i += 1
@@ -138,78 +168,6 @@
 #         p "Requests with errors or no new results: #{redundant_returns_count}"
 #         i = max if redundant_returns_count > 5
 #       end
-#     end
-#   end
-# end
-#
-# #
-# # CAPTURE KEYWORDS FROM EVENTS
-# #
-#
-# all_attractions = Attraction.all
-# interest_keywords = []
-#
-# all_attractions.each do |attraction|
-#   city = attraction['city_name'] || ''
-#   title = attraction['title'] || ''
-#   venue = attraction['venue_name'] || ''
-#   desc = attraction['description'] || ''
-#   attraction_words_string = city + ' ' + title + ' ' + venue + ' ' + desc
-#   interest_keywords += attraction_words_string.downcase.gsub!(/[^0-9A-Za-z]/, ' ').split(' ')
-# end
-#
-# filtered_interest_keywords = interest_keywords.select { |word| !Stopwords.stopwords.include? word }
-# unique_interest_keywords = filtered_interest_keywords.uniq
-# interest_keywords_count_hash = Hash.new 0
-# filtered_interest_keywords.each do |word|
-#   interest_keywords_count_hash[word] += 1
-# end
-#
-# p "Unique Interest Keywords Count: #{unique_interest_keywords.length}"
-# p "Filtered Interest Keywords Count: #{filtered_interest_keywords.length}"
-# p "Interest Keywords Count: #{interest_keywords.length}"
-#
-# #
-# # Save tags
-# #
-#
-# def create_tag(keyword_hash, avg_usage)
-#   keyword_hash.keys.each do |key|
-#     Tag.create(
-#       tag: key,
-#       usages: keyword_hash[key],
-#       relative_usage: ((100 * keyword_hash[key]) / avg_usage).floor
-#     )
-#   end
-# end
-#
-# average_usage = interest_keywords_count_hash.values.inject(0, :+) /
-#                 interest_keywords_count_hash.values.length.to_f
-# p "average_usage: #{average_usage}"
-#
-# create_tag(interest_keywords_count_hash, average_usage)
-#
-# #
-# # Create Join Table between events and tags
-# #
-#
-# all_attractions.each do |attraction|
-#   city = attraction['city_name'] || ''
-#   title = attraction['title'] || ''
-#   venue = attraction['venue_name'] || ''
-#   desc = attraction['description'] || ''
-#   attraction_words_string = city + ' ' + title + ' ' + venue + ' ' + desc
-#   attraction_words_array = attraction_words_string.downcase.gsub!(/[^0-9A-Za-z]/, ' ').split(' ')
-#   filtered_attraction_words_array = attraction_words_array.select { |word| !Stopwords.stopwords.include? word }
-#   unique_filtered_attraction_words_array = filtered_attraction_words_array.uniq
-#   unique_filtered_attraction_words_array.each do |tag_word|
-#     begin
-#       AttractionTag.create(
-#         tag: Tag.find_by(tag: tag_word),
-#         attraction: Attraction.find_by(title: attraction[:title])
-#       )
-#     rescue ActiveRecord::RecordNotUnique
-#       p 'attempted duplicate record creation in seeds.rb file'
 #     end
 #   end
 # end

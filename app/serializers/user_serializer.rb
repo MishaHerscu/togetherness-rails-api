@@ -1,7 +1,7 @@
 #
 class UserSerializer < ActiveModel::Serializer
   attributes :id, :email, :admin, :givenname, :surname, :keywords_string,
-             :trips, :attendances, :user_tags, :friend_requests, :friendships,
+             :trips, :attendances, :friend_requests, :friendships,
              :attraction_suggestions
 
   def trips
@@ -10,10 +10,6 @@ class UserSerializer < ActiveModel::Serializer
 
   def attendances
     object.attendances.pluck(:id)
-  end
-
-  def user_tags
-    object.user_tags.pluck(:id)
   end
 
   def friend_requests

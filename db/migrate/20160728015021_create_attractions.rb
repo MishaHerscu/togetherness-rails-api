@@ -3,6 +3,7 @@ class CreateAttractions < ActiveRecord::Migration
   def change
     create_table :attractions do |t|
       t.string :eventful_id
+      t.string :categories_string
       t.integer :city_id
       t.string :city_name
       t.string :country_name
