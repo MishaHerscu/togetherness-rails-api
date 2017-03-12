@@ -5,7 +5,7 @@ class AttractionCategoriesController < ProtectedController
   # GET /attraction_categories
   # GET /attraction_categories.json
   def index
-    @attraction_categories = AttractionCategory.all
+    @attraction_categories = AttractionCategory.order('RANDOM()').all.limit(50)
 
     render json: @attraction_categories
   end
