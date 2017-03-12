@@ -34,8 +34,9 @@
 # def add_categories(attraction)
 #   attraction['categories'].each do |category_list|
 #     category_list[1].each do |category|
-#       new_category = { title: category['id'], label: category['name'] }
-#       next if Category.find_by title: new_category['id']
+#       fixed_label = category['name'].gsub '&amp;', '&'
+#       new_category = { title: category['id'], label: fixed_label }
+#       next if Category.find_by title: new_category[:title]
 #       Category.create new_category
 #     end
 #   end
@@ -47,7 +48,14 @@
 #       cat = Category.find_by title: a_cat['id']
 #       next unless cat
 #       new_ac = { attraction_id: attraction[:id], category_id: cat[:id] }
-#       AttractionCategory.create new_ac
+#       current_a_cats = AttractionCategory.where attraction_id: attraction[:id]
+#       dupe = false
+#       if current_a_cats
+#         current_a_cats.each do |current_a_cat|
+#           dupe = true if current_a_cat[:category_id] == cat[:id]
+#         end
+#       end
+#       AttractionCategory.create new_ac unless dupe
 #     end
 #   end
 # end
@@ -122,8 +130,8 @@
 # # .gsub(/\u2028/, '')
 #
 # max = 100 # Run with 100 here
-# page_size = 1000 # Run with 1000 here
-# page_number = 2
+# page_size = 2000 # Run with 1000 here
+# page_number = 5 # Run with 5 here
 #
 # cities.each do |city|
 #   redundant_returns_count = 0
