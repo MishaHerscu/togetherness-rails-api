@@ -1,3 +1,5 @@
+require 'json'
+
 # This is the controller where the important recommendation engine is
 class UserAttractionsController < ProtectedController
   before_action :set_user_attraction, only: [:show, :update, :destroy]
@@ -19,48 +21,62 @@ class UserAttractionsController < ProtectedController
     end
   end
 
-  def add_user_words(word_array, user_words)
-    word_array.each do |word|
-      user_words << word
-    end
+  def finalize_user_words(category, u_words)
     final_string = ''
-    user_words.uniq.each do |word|
-      final_string = final_string + ' ' + word
-    end
-    @current_user[:keywords_string] = final_string.strip
+    return unless u_words[category]
+    u_words[category].uniq.each { |w| final_string = final_string + ' ' + w }
+    u_words[category] = final_string.strip
+    @current_user[:keywords_string] = u_words.to_json
     @current_user.save
   end
 
-  def remove_user_words(word_array, user_words)
+  def update_user_words(category, word_array, user_words, adding_words)
     word_array.each do |word|
-      user_words.delete(word)
+      if user_words[category]
+        user_words[category] << word if adding_words
+        user_words[category].delete(word) unless adding_words
+      elsif adding_words
+        user_words[category] = [word]
+      end
+      user_words.delete(category) unless user_words[category]
     end
-    final_string = ''
-    user_words.uniq.each do |word|
-      final_string = final_string + ' ' + word
-    end
-    @current_user[:keywords_string] = final_string.strip
-    @current_user.save
+    finalize_user_words(category, user_words)
   end
 
   def split_user_word_array(user)
     begin
-      user_words = user[:keywords_string].split(' ')
+      user_words = JSON.parse(user[:keywords_string])
     rescue
-      user_words = []
+      user_words = {}
     end
     user_words
   end
 
+  def make_categories_list(attraction_categories)
+    categories = []
+    attraction_categories.each do |a_cat|
+      categories << Category.find(a_cat[:category_id])
+    end
+  end
+
+  def update_user_word_strings(categories, user_words, a_keywords, params)
+    categories.each do |category|
+      if params[:like]
+        update_user_words(category.category_id, a_keywords, user_words, true)
+      else
+        update_user_words(category.category_id, a_keywords, user_words, false)
+      end
+    end
+  end
+
   def update_user_string(params)
     liked_attraction = Attraction.find(params[:attraction_id])
-    attraction_keywords = liked_attraction[:keywords_string].split(' ')
+    a_keywords = liked_attraction[:keywords_string].split(' ')
+    attraction_categories = AttractionCategory.where 'attraction_id = ?',
+                                                     params[:attraction_id]
+    categories = make_categories_list(attraction_categories)
     user_words = split_user_word_array(@current_user)
-    if params[:like]
-      add_user_words(attraction_keywords, user_words)
-    else
-      remove_user_words(attraction_keywords, user_words)
-    end
+    update_user_word_strings(categories, user_words, a_keywords, params)
     refresh_user_events(@current_user)
   end
 
