@@ -88,7 +88,6 @@ class ApplicationController < ActionController::API
         user_id: @current_user[:id],
         attraction_id: attraction[:id]
       }
-      p 'creating: ', attraction_suggestion_params
       AttractionSuggestion.create(attraction_suggestion_params)
     end
   end
@@ -102,7 +101,6 @@ class ApplicationController < ActionController::API
     attraction_suggestions = get_attraction_suggestions(correlation_cutoff,
                                                         current_user_words_hash)
     return false unless attraction_suggestions
-    p 'creating'
     create_new_attraction_suggestions(attraction_suggestions)
   end
 
