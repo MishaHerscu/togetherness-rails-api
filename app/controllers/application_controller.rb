@@ -88,7 +88,11 @@ class ApplicationController < ActionController::API
         user_id: @current_user[:id],
         attraction_id: attraction[:id]
       }
-      AttractionSuggestion.create(attraction_suggestion_params)
+      begin
+        AttractionSuggestion.create(attraction_suggestion_params)
+      rescue
+        p 'attempted duplicate record creation'
+      end
     end
   end
 
