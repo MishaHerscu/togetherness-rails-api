@@ -62,7 +62,6 @@ class UsersController < ProtectedController
 
     if @current_user.update(user_creds)
       head :no_content
-      refresh_user_events(@current_user)
     else
       render json: @trip.errors, status: :unprocessable_entity
     end
@@ -71,6 +70,18 @@ class UsersController < ProtectedController
   def destroy
     User.find(@current_user).destroy
     head :no_content
+  end
+
+  def update_recommendations
+    user_credentials = user_creds
+    return false if @current_user.email != user_credentials[:email]
+
+    begin
+      refresh_user_events(@current_user)
+      head :no_content
+    rescue
+      render json: ''
+    end
   end
 
   private

@@ -77,7 +77,6 @@ class UserAttractionsController < ProtectedController
     categories = make_categories_list(attraction_categories)
     user_words = split_user_word_array(@current_user)
     update_user_word_strings(categories, user_words, a_keywords, params)
-    refresh_user_events(@current_user)
   end
 
   # POST /user_attractions

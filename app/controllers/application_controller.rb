@@ -99,7 +99,7 @@ class ApplicationController < ActionController::API
   def refresh_user_events(user)
     correlation_cutoff = 0.25
     AttractionSuggestion.where(user_id: user[:id]).delete_all
-    return false if ['', ' ', '{}'].include? @current_user[:keywords_string]
+    return false if [nil, '', ' ', '{}'].include? @current_user[:keywords_string]
     current_user_words_hash = JSON.parse(@current_user[:keywords_string])
     return false if current_user_words_hash.empty?
     attraction_suggestions = get_attraction_suggestions(correlation_cutoff,
